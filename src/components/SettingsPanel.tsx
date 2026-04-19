@@ -248,9 +248,9 @@ export function SettingsPanel({ initialOpen, onRestartTour }: Props = {}) {
             icon={Car}
             label="Veículo"
           >
-            <div>
+            <div data-tour="settings-consumption-wrap">
               <Label className="text-xs text-muted-foreground">Consumo Médio (km/l)</Label>
-              <Input type="number" step="0.1" value={avgConsumption} onChange={(e) => setAvgConsumption(e.target.value)} className="mt-1" />
+              <Input data-tour="settings-consumption" type="number" step="0.1" value={avgConsumption} onChange={(e) => setAvgConsumption(e.target.value)} className="mt-1" />
               <p className="text-[11px] text-muted-foreground mt-1">Usado para calcular litros consumidos a partir dos KM rodados.</p>
             </div>
           </Section>
@@ -262,12 +262,12 @@ export function SettingsPanel({ initialOpen, onRestartTour }: Props = {}) {
             icon={Wallet}
             label="Financeiro"
           >
-            <div>
+            <div data-tour="settings-reserve-wrap">
               <Label className="text-xs text-muted-foreground">Reserva por KM (R$)</Label>
-              <Input type="number" step="0.01" value={reservePerKm} onChange={(e) => setReservePerKm(e.target.value)} className="mt-1" />
+              <Input data-tour="settings-reserve" type="number" step="0.01" value={reservePerKm} onChange={(e) => setReservePerKm(e.target.value)} className="mt-1" />
               <p className="text-[11px] text-muted-foreground mt-1">Valor recomendado por km para manutenção/reserva.</p>
             </div>
-            <div>
+            <div data-tour="settings-helper-wrap">
               <Label className="text-xs text-muted-foreground">Custo do Ajudante (R$)</Label>
               <div className="flex gap-2 mt-1">
                 <Button type="button" variant={helperCost === "50" ? "default" : "outline"} className="flex-1" onClick={() => setHelperCost("50")}>R$ 50</Button>
@@ -276,7 +276,7 @@ export function SettingsPanel({ initialOpen, onRestartTour }: Props = {}) {
               </div>
               <p className="text-[11px] text-muted-foreground mt-1">Valor fixo do ajudante por rota.</p>
             </div>
-            <div>
+            <div data-tour="settings-fixedfee-wrap">
               <Label className="text-xs text-muted-foreground">
                 Taxa Fixa por Rota (R$) <span className="text-muted-foreground/60">— opcional</span>
               </Label>
