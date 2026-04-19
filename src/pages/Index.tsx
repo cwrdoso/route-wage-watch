@@ -22,12 +22,68 @@ import { RouteModeToggle, type RouteMode } from "@/components/RouteModeToggle";
 import { ActiveRouteBanner } from "@/components/ActiveRouteBanner";
 import { StartRouteSheet } from "@/components/StartRouteSheet";
 import { FinishRouteSheet } from "@/components/FinishRouteSheet";
+import { GuidedTour, type TourStep } from "@/components/GuidedTour";
 import { Home, Route, DollarSign, Settings, LogOut, Play, Square } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { vibrate } from "@/lib/haptics";
 import logoRotta from "@/assets/logo-rotta.png";
+
+const TOUR_FLAG_KEY = "racta_tour_completed";
+
+const TOUR_STEPS: TourStep[] = [
+  {
+    target: "summary-cards",
+    title: "Seus números em tempo real",
+    description:
+      "Aqui você vê faturamento, lucro, horas trabalhadas e muito mais. Tudo atualiza automaticamente após cada rota.",
+  },
+  {
+    target: "goal-progress",
+    title: "Seu progresso do mês",
+    description:
+      "Acompanhe quanto falta para bater sua meta. O app projeta seu ganho final baseado no seu ritmo atual.",
+  },
+  {
+    target: "tab-routes",
+    switchTab: "routes",
+    title: "Registre suas rotas aqui",
+    description:
+      "Toque em Iniciar Rota para cronometrar automaticamente, ou use o modo Manual para registrar uma rota já feita.",
+    placement: "top",
+  },
+  {
+    target: "start-route-btn",
+    switchTab: "routes",
+    title: "Modo Dinâmico",
+    description:
+      "O app cronometra sua rota em tempo real. Ao finalizar, informe km rodados e gasolina — o lucro é calculado na hora.",
+  },
+  {
+    target: "tab-costs",
+    switchTab: "costs",
+    title: "Entenda seu dinheiro de verdade",
+    description:
+      "Veja exatamente para onde foi cada real: combustível, ajudante, taxa fixa e o que ficou no seu bolso.",
+    placement: "top",
+  },
+  {
+    target: "cost-breakdown",
+    switchTab: "costs",
+    title: "Custos detalhados por categoria",
+    description:
+      "Cada custo mostra o percentual do seu faturamento. Ideal para saber onde você pode economizar.",
+  },
+  {
+    target: "tab-settings",
+    switchTab: "settings",
+    title: "Mantenha seus dados atualizados",
+    description:
+      "Se o preço da gasolina mudar ou você contratar um ajudante, atualize aqui. Isso garante que seu lucro real seja sempre preciso.",
+    placement: "top",
+  },
+];
 
 type Tab = "home" | "routes" | "costs" | "settings";
 
