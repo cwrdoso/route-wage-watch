@@ -103,6 +103,8 @@ const Index = () => {
   const [startSheetOpen, setStartSheetOpen] = useState(false);
   const [finishSheetOpen, setFinishSheetOpen] = useState(false);
   const [activeRefreshKey, setActiveRefreshKey] = useState(0);
+  const [settingsInitialOpen, setSettingsInitialOpen] = useState<"essencial" | undefined>(undefined);
+  const [settingsKey, setSettingsKey] = useState(0);
 
   const [tourOpen, setTourOpen] = useState(false);
 
@@ -283,7 +285,9 @@ const Index = () => {
             <ExtraExpenseList expenses={extraExpenses} onDelete={refresh} />
           </>
         )}
-        {tab === "settings" && <SettingsPanel />}
+        {tab === "settings" && (
+          <SettingsPanel key={settingsKey} initialOpen={settingsInitialOpen} />
+        )}
       </main>
 
       <StartRouteSheet
@@ -295,6 +299,11 @@ const Index = () => {
         open={finishSheetOpen}
         onOpenChange={setFinishSheetOpen}
         onFinished={(entry) => handleRouteSaved(entry)}
+        onOpenSettings={() => {
+          setSettingsInitialOpen("essencial");
+          setSettingsKey((k) => k + 1);
+          handleTabChange("settings");
+        }}
       />
 
       <nav className="fixed bottom-4 left-1/2 -translate-x-1/2 z-20">
