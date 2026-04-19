@@ -41,9 +41,9 @@ const TOUR_STEPS: TourStep[] = [
   },
   {
     target: "goal-progress",
-    title: "Seu progresso do mês",
+    title: "Defina sua meta do mês",
     description:
-      "Acompanhe quanto falta para bater sua meta. O app projeta seu ganho final baseado no seu ritmo atual.",
+      "Acompanhe seu lucro real e o quanto falta para bater sua meta. Vá em Configurações e cadastre uma Meta Mensal para liberar o gráfico de progresso.",
   },
   {
     target: "tab-routes",
