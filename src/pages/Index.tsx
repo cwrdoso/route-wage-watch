@@ -105,6 +105,50 @@ const TOUR_STEPS: TourStep[] = [
     placement: "bottom",
     padding: 6,
   },
+  {
+    target: "settings-consumption-wrap",
+    switchTab: "settings",
+    openSection: "veiculo",
+    title: "Consumo médio do veículo",
+    description:
+      "Quantos km seu veículo faz com 1 litro? Quanto mais preciso, melhor o cálculo do custo de combustível por rota.",
+    requireInput: "settings-consumption",
+    placement: "bottom",
+    padding: 6,
+  },
+  {
+    target: "settings-reserve-wrap",
+    switchTab: "settings",
+    openSection: "financeiro",
+    title: "Reserva por KM",
+    description:
+      "Valor que você guarda por km rodado para manutenção e desgaste do veículo (ex.: R$ 0,10). Aparece como reserva recomendada de cada rota.",
+    requireInput: "settings-reserve",
+    placement: "bottom",
+    padding: 6,
+  },
+  {
+    target: "settings-helper-wrap",
+    switchTab: "settings",
+    openSection: "financeiro",
+    title: "Custo do Ajudante",
+    description:
+      "Toque no valor que você costuma pagar ao ajudante por rota. Use R$ 0 se trabalha sozinho — pode mudar depois quando quiser.",
+    placement: "bottom",
+    padding: 6,
+    skippable: true,
+  },
+  {
+    target: "settings-fixedfee-wrap",
+    switchTab: "settings",
+    openSection: "financeiro",
+    title: "Taxa Fixa por Rota",
+    description:
+      "Custo fixo que você tem em toda rota (ex.: aluguel do veículo, taxa da plataforma). Deixe em branco ou 0 se não se aplica.",
+    placement: "bottom",
+    padding: 6,
+    skippable: true,
+  },
 ];
 
 type Tab = "home" | "routes" | "costs" | "settings";

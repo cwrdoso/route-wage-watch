@@ -111,24 +111,44 @@ export function SettingsPanel({ initialOpen, onRestartTour }: Props = {}) {
   // Refs to read latest values inside the global event listener
   const dailyValRef = useRef(defaultDailyValue);
   const fuelValRef = useRef(defaultPricePerLiter);
+  const consumptionValRef = useRef(avgConsumption);
+  const reserveValRef = useRef(reservePerKm);
+  const helperValRef = useRef(helperCost);
+  const fixedFeeValRef = useRef(fixedFee);
   useEffect(() => { dailyValRef.current = defaultDailyValue; }, [defaultDailyValue]);
   useEffect(() => { fuelValRef.current = defaultPricePerLiter; }, [defaultPricePerLiter]);
+  useEffect(() => { consumptionValRef.current = avgConsumption; }, [avgConsumption]);
+  useEffect(() => { reserveValRef.current = reservePerKm; }, [reservePerKm]);
+  useEffect(() => { helperValRef.current = helperCost; }, [helperCost]);
+  useEffect(() => { fixedFeeValRef.current = fixedFee; }, [fixedFee]);
 
-  // Listen for the guided tour asking us to silently persist essentials
+  // Listen for the guided tour asking us to silently persist all editable fields
   useEffect(() => {
-    const handler = () => {
+    const saveHandler = () => {
       const cur = getSettings();
       saveSettings({
         ...cur,
+        avgConsumption: Number(consumptionValRef.current) || cur.avgConsumption || 10,
+        reservePerKm: Number(reserveValRef.current) || cur.reservePerKm || 0,
         defaultDailyValue: Number(dailyValRef.current) || cur.defaultDailyValue || 0,
         defaultPricePerLiter: Number(fuelValRef.current) || cur.defaultPricePerLiter || 0,
+        helperCost: Number(helperValRef.current) || 0,
+        fixedFee: fixedFeeValRef.current.trim() === "" ? 0 : Number(fixedFeeValRef.current),
       });
       const done =
         Number(dailyValRef.current) > 0 && Number(fuelValRef.current) > 0;
       setEssentialsDone((prev) => prev || done);
     };
-    window.addEventListener("tour:save-essentials", handler);
-    return () => window.removeEventListener("tour:save-essentials", handler);
+    const openHandler = (e: Event) => {
+      const detail = (e as CustomEvent<{ section?: SectionKey }>).detail;
+      if (detail?.section) setOpenSection(detail.section);
+    };
+    window.addEventListener("tour:save-essentials", saveHandler);
+    window.addEventListener("tour:open-section", openHandler as EventListener);
+    return () => {
+      window.removeEventListener("tour:save-essentials", saveHandler);
+      window.removeEventListener("tour:open-section", openHandler as EventListener);
+    };
   }, []);
 
   const toggleSection = (id: SectionKey) => {
@@ -248,9 +268,9 @@ export function SettingsPanel({ initialOpen, onRestartTour }: Props = {}) {
             icon={Car}
             label="Veículo"
           >
-            <div>
+            <div data-tour="settings-consumption-wrap">
               <Label className="text-xs text-muted-foreground">Consumo Médio (km/l)</Label>
-              <Input type="number" step="0.1" value={avgConsumption} onChange={(e) => setAvgConsumption(e.target.value)} className="mt-1" />
+              <Input data-tour="settings-consumption" type="number" step="0.1" value={avgConsumption} onChange={(e) => setAvgConsumption(e.target.value)} className="mt-1" />
               <p className="text-[11px] text-muted-foreground mt-1">Usado para calcular litros consumidos a partir dos KM rodados.</p>
             </div>
           </Section>
@@ -262,12 +282,12 @@ export function SettingsPanel({ initialOpen, onRestartTour }: Props = {}) {
             icon={Wallet}
             label="Financeiro"
           >
-            <div>
+            <div data-tour="settings-reserve-wrap">
               <Label className="text-xs text-muted-foreground">Reserva por KM (R$)</Label>
-              <Input type="number" step="0.01" value={reservePerKm} onChange={(e) => setReservePerKm(e.target.value)} className="mt-1" />
+              <Input data-tour="settings-reserve" type="number" step="0.01" value={reservePerKm} onChange={(e) => setReservePerKm(e.target.value)} className="mt-1" />
               <p className="text-[11px] text-muted-foreground mt-1">Valor recomendado por km para manutenção/reserva.</p>
             </div>
-            <div>
+            <div data-tour="settings-helper-wrap">
               <Label className="text-xs text-muted-foreground">Custo do Ajudante (R$)</Label>
               <div className="flex gap-2 mt-1">
                 <Button type="button" variant={helperCost === "50" ? "default" : "outline"} className="flex-1" onClick={() => setHelperCost("50")}>R$ 50</Button>
@@ -276,7 +296,7 @@ export function SettingsPanel({ initialOpen, onRestartTour }: Props = {}) {
               </div>
               <p className="text-[11px] text-muted-foreground mt-1">Valor fixo do ajudante por rota.</p>
             </div>
-            <div>
+            <div data-tour="settings-fixedfee-wrap">
               <Label className="text-xs text-muted-foreground">
                 Taxa Fixa por Rota (R$) <span className="text-muted-foreground/60">— opcional</span>
               </Label>

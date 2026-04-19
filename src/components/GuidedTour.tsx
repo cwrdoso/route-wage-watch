@@ -20,6 +20,10 @@ export interface TourStep {
   /** If set, user must fill the input matching this data-tour selector to advance.
    *  A "Pular esta etapa" link is also shown. */
   requireInput?: string;
+  /** If set, dispatches tour:open-section to expand the named settings section */
+  openSection?: "essencial" | "veiculo" | "financeiro" | "metas";
+  /** If set, shows a "Pular esta etapa" link even without requireInput */
+  skippable?: boolean;
 }
 
 interface Rect {
@@ -69,12 +73,18 @@ export function GuidedTour({ open, steps, onTabChange, onFinish, onSkip }: Props
       // First step — record current implicit tab as "home"
       lastTabRef.current = "home";
     }
+    // If step asks to expand a settings section, dispatch the event
+    if (step.openSection) {
+      window.dispatchEvent(
+        new CustomEvent("tour:open-section", { detail: { section: step.openSection } })
+      );
+    }
     // Find target after a short delay so tab switch / animation can settle
     setVisible(false);
     const t = window.setTimeout(() => {
       measureTarget();
       setVisible(true);
-    }, 120);
+    }, step.openSection ? 320 : 120);
     return () => window.clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stepIndex, open, completed]);
@@ -172,10 +182,12 @@ export function GuidedTour({ open, steps, onTabChange, onFinish, onSkip }: Props
   function handleNext() {
     vibrate(20);
     const isLast = stepIndex === steps.length - 1;
-    // If current step required input, ask host to persist it
-    if (step?.requireInput) {
+    // If current step touched settings (input or section open), persist values
+    if (step?.requireInput || step?.openSection || step?.switchTab === "settings") {
       window.dispatchEvent(
-        new CustomEvent("tour:save-essentials", { detail: { field: step.requireInput } })
+        new CustomEvent("tour:save-essentials", {
+          detail: { field: step?.requireInput },
+        })
       );
     }
     setVisible(false);
@@ -464,7 +476,7 @@ export function GuidedTour({ open, steps, onTabChange, onFinish, onSkip }: Props
               <>Entendi →</>
             )}
           </Button>
-          {step.requireInput && (
+          {(step.requireInput || step.skippable) && stepIndex !== steps.length - 1 && (
             <button
               type="button"
               onClick={handleNext}
