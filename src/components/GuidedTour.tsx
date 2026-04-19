@@ -92,6 +92,49 @@ export function GuidedTour({ open, steps, onTabChange, onFinish, onSkip }: Props
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, completed, stepIndex]);
 
+  // Watch required input value
+  useEffect(() => {
+    if (!open || completed || !step?.requireInput) {
+      setInputValid(true);
+      return;
+    }
+    setInputValid(false);
+    let raf = 0;
+    const find = () =>
+      document.querySelector<HTMLInputElement>(`[data-tour="${step.requireInput}"]`);
+
+    const check = () => {
+      const el = find();
+      if (el) {
+        const v = Number(el.value);
+        setInputValid(!Number.isNaN(v) && v > 0);
+      }
+    };
+
+    // Wait until input is mounted, then attach listener
+    const attach = () => {
+      const el = find();
+      if (!el) {
+        raf = window.requestAnimationFrame(attach);
+        return;
+      }
+      check();
+      el.addEventListener("input", check);
+      el.addEventListener("change", check);
+    };
+    attach();
+
+    return () => {
+      cancelAnimationFrame(raf);
+      const el = find();
+      if (el) {
+        el.removeEventListener("input", check);
+        el.removeEventListener("change", check);
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stepIndex, open, completed]);
+
   function measureTarget() {
     if (!step) return;
     const el = document.querySelector<HTMLElement>(`[data-tour="${step.target}"]`);
