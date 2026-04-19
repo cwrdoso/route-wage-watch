@@ -335,48 +335,42 @@
   animation: fade-in-soft 0.4s ease-out;
 }
 
-/* ====== 3D Flip Card ====== */
-.scene {
-  perspective: 1400px;
+/* ====== 3D Flip Card (Mês ↔ Quinzena) ====== */
+.flip-scene {
+  perspective: 1600px;
   perspective-origin: 50% 50%;
-  position: relative;
 }
-.card-flip {
+.flip-inner {
   position: relative;
   display: grid;
   transform-style: preserve-3d;
   -webkit-transform-style: preserve-3d;
-  transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+  transition: transform 700ms cubic-bezier(0.4, 0.2, 0.2, 1);
   will-change: transform;
 }
-.card-flip.flipped {
+.flip-inner.is-flipped {
   transform: rotateY(180deg);
 }
-.face {
+.flip-face {
   grid-column: 1 / 2;
   grid-row: 1 / 2;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
-  transform: rotateY(0deg) translateZ(0);
-  -webkit-transform: rotateY(0deg) translateZ(0);
+  transform: translateZ(0.01px); /* força composição em iOS */
+  -webkit-transform: translateZ(0.01px);
 }
-.face-back {
-  transform: rotateY(180deg) translateZ(0);
-  -webkit-transform: rotateY(180deg) translateZ(0);
+.flip-face-back {
+  transform: rotateY(180deg) translateZ(0.01px);
+  -webkit-transform: rotateY(180deg) translateZ(0.01px);
 }
-/* Disable hover effects entirely inside 3D scene (Quinzena/Mês progress card) */
-.scene .glass-card,
-.scene .glass-card:hover {
+/* Desativa hover/sheen dentro do flip para não interferir no 3D */
+.flip-scene .glass-card,
+.flip-scene .glass-card:hover {
   transform: none !important;
   box-shadow: none !important;
   border-color: hsl(var(--primary) / 0.2) !important;
   transition: none;
-}
-.scene .glass-card.face {
   animation: none !important;
-}
-.scene .premium-sheen::before {
-  display: none;
 }
 
 /* Toggle pill background slider */
