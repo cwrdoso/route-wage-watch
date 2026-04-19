@@ -110,6 +110,7 @@ interface FaceData {
 
 function CardFace({ data, active }: { data: FaceData; active: boolean }) {
   const { tone } = data;
+  const noGoal = data.goal <= 0;
   return (
     <CardContent className="relative p-5 sm:p-6">
       <div className="flex items-center gap-2 mb-4 min-w-0">
@@ -123,14 +124,32 @@ function CardFace({ data, active }: { data: FaceData; active: boolean }) {
       </div>
 
       <div className="flex items-center gap-5">
-        <GoalRing pct={data.pct} expectedPct={data.expectedPct} tone={tone} active={active} />
+        {noGoal ? (
+          <div
+            className="relative shrink-0 flex items-center justify-center rounded-full border-2 border-dashed border-border/60"
+            style={{ width: 150, height: 150 }}
+          >
+            <div className="text-center px-2">
+              <Target className="h-6 w-6 text-muted-foreground/60 mx-auto mb-1" />
+              <p className="text-[10px] text-muted-foreground leading-tight">
+                Defina sua meta nas configurações
+              </p>
+            </div>
+          </div>
+        ) : (
+          <GoalRing pct={data.pct} expectedPct={data.expectedPct} tone={tone} active={active} />
+        )}
         <div className="flex-1 min-w-0 space-y-2">
           <div>
             <p className="text-[11px] uppercase tracking-wider text-muted-foreground">Lucro acumulado</p>
             <p className="text-2xl font-bold tabular-nums leading-tight">
               {fmt(useCountUp(active ? data.current : 0, 800))}
             </p>
-            <p className="text-[11px] text-muted-foreground tabular-nums">meta {fmt(data.goal)}</p>
+            {noGoal ? (
+              <p className="text-[11px] text-muted-foreground">sem meta definida</p>
+            ) : (
+              <p className="text-[11px] text-muted-foreground tabular-nums">meta {fmt(data.goal)}</p>
+            )}
           </div>
         </div>
       </div>
@@ -149,12 +168,13 @@ export function GoalProgress({ routes }: Props) {
   const settings = getSettings();
   const [view, setView] = useState<View>("month");
 
-  if (!settings.monthlyGoal || settings.monthlyGoal <= 0) return null;
-
   const now = new Date();
-  const monthlyGoal = settings.monthlyGoal;
+  const hasGoal = !!(settings.monthlyGoal && settings.monthlyGoal > 0);
+  const monthlyGoal = settings.monthlyGoal && settings.monthlyGoal > 0 ? settings.monthlyGoal : 0;
   const fortnightGoal =
-    settings.fortnightGoal && settings.fortnightGoal > 0 ? settings.fortnightGoal : monthlyGoal / 2;
+    settings.fortnightGoal && settings.fortnightGoal > 0
+      ? settings.fortnightGoal
+      : monthlyGoal / 2;
 
   const monthProfit = getMonthRoutes(routes, now).reduce((s, r) => s + r.netProfit, 0);
   const fortProfit = getFortnightRoutes(routes, now).reduce((s, r) => s + r.netProfit, 0);

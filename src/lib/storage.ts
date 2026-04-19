@@ -30,6 +30,7 @@ export interface Settings {
   helperCost: number; // R$
   defaultDailyValue: number;
   defaultPricePerLiter?: number;
+  fixedFee?: number; // R$ per route, optional (default 50)
   monthlyGoal?: number;
   fortnightGoal?: number;
   hourlyGoal?: number;
@@ -71,6 +72,7 @@ export function getSettings(): Settings {
     defaultDailyValue: 350,
     helperCost: 50,
     defaultPricePerLiter: 6.0,
+    fixedFee: 50,
     monthlyGoal: 0,
     fortnightGoal: 0,
     hourlyGoal: 0,
@@ -82,6 +84,7 @@ export function getSettings(): Settings {
     fortnightGoal: 0,
     hourlyGoal: 0,
     defaultPricePerLiter: 6.0,
+    fixedFee: 50,
     routeMode: "dynamic",
     ...parsed,
   };
@@ -121,7 +124,7 @@ export function calculateEntry(
   const avgConsumption = settings.avgConsumption;
   const litersUsed = kmDriven / avgConsumption;
   const fuelCost = litersUsed * pricePerLiter;
-  const fixedFee = 50;
+  const fixedFee = settings.fixedFee ?? 50;
   const reservePerKm = settings.reservePerKm;
   const recommendedReserve = reservePerKm * kmDriven;
   const isExempt = dailyValue < 350;

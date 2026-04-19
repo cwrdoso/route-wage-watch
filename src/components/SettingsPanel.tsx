@@ -33,6 +33,7 @@ export function SettingsPanel() {
   const [defaultDailyValue, setDefaultDailyValue] = useState(String(settings.defaultDailyValue));
   const [defaultPricePerLiter, setDefaultPricePerLiter] = useState(String(settings.defaultPricePerLiter ?? 6));
   const [helperCost, setHelperCost] = useState(String(settings.helperCost ?? 50));
+  const [fixedFee, setFixedFee] = useState(String(settings.fixedFee ?? ""));
   const [monthlyGoal, setMonthlyGoal] = useState(String(settings.monthlyGoal || ""));
   const [fortnightGoal, setFortnightGoal] = useState(String(settings.fortnightGoal || ""));
   const [fortnightTouched, setFortnightTouched] = useState(false);
@@ -55,6 +56,7 @@ export function SettingsPanel() {
       defaultDailyValue: Number(defaultDailyValue),
       defaultPricePerLiter: Number(defaultPricePerLiter) || 0,
       helperCost: Number(helperCost),
+      fixedFee: fixedFee.trim() === "" ? 0 : Number(fixedFee),
       monthlyGoal: monthly,
       fortnightGoal: fort,
       hourlyGoal: 0,
@@ -111,6 +113,20 @@ export function SettingsPanel() {
                 <Button type="button" variant={helperCost === "0" ? "default" : "outline"} className="flex-1" onClick={() => setHelperCost("0")}>R$ 0</Button>
               </div>
               <p className="text-[11px] text-muted-foreground mt-1">Valor fixo do ajudante por rota.</p>
+            </div>
+            <div>
+              <Label className="text-xs text-muted-foreground">
+                Taxa Fixa por Rota (R$) <span className="text-muted-foreground/60">— opcional</span>
+              </Label>
+              <Input
+                type="number"
+                step="0.01"
+                placeholder="Deixe em branco se não houver"
+                value={fixedFee}
+                onChange={(e) => setFixedFee(e.target.value)}
+                className="mt-1"
+              />
+              <p className="text-[11px] text-muted-foreground mt-1">Taxa cobrada por rota (ex: aluguel, plataforma). Deixe vazio ou 0 se não se aplica.</p>
             </div>
           </SectionCard>
         </div>
