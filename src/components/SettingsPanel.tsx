@@ -289,12 +289,22 @@ export function SettingsPanel({ initialOpen, onRestartTour }: Props = {}) {
             </div>
             <div data-tour="settings-helper-wrap">
               <Label className="text-xs text-muted-foreground">Custo do Ajudante (R$)</Label>
-              <div className="flex gap-2 mt-1">
-                <Button type="button" variant={helperCost === "50" ? "default" : "outline"} className="flex-1" onClick={() => setHelperCost("50")}>R$ 50</Button>
-                <Button type="button" variant={helperCost === "40" ? "default" : "outline"} className="flex-1" onClick={() => setHelperCost("40")}>R$ 40</Button>
-                <Button type="button" variant={helperCost === "0" ? "default" : "outline"} className="flex-1" onClick={() => setHelperCost("0")}>R$ 0</Button>
+              <Input
+                data-tour="settings-helper"
+                type="number"
+                step="0.01"
+                inputMode="decimal"
+                placeholder="Ex: 50"
+                value={helperCost}
+                onChange={(e) => setHelperCost(e.target.value)}
+                className="mt-1"
+              />
+              <div className="flex gap-2 mt-2">
+                <Button type="button" size="sm" variant="outline" className="flex-1 h-8 text-xs" onClick={() => setHelperCost("50")}>R$ 50</Button>
+                <Button type="button" size="sm" variant="outline" className="flex-1 h-8 text-xs" onClick={() => setHelperCost("40")}>R$ 40</Button>
+                <Button type="button" size="sm" variant="outline" className="flex-1 h-8 text-xs" onClick={() => setHelperCost("0")}>R$ 0</Button>
               </div>
-              <p className="text-[11px] text-muted-foreground mt-1">Valor fixo do ajudante por rota.</p>
+              <p className="text-[11px] text-muted-foreground mt-1">Valor fixo do ajudante por rota. Use os atalhos ou digite um valor personalizado.</p>
             </div>
             <div data-tour="settings-fixedfee-wrap">
               <Label className="text-xs text-muted-foreground">
