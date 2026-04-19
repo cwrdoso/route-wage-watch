@@ -378,18 +378,18 @@ export function GuidedTour({ open, steps, onTabChange, onFinish, onSkip }: Props
   }
 
   return createPortal(
-    <div className="fixed inset-0 z-[100]" role="dialog" aria-modal="true">
-      {/* Spotlight: 4 dark panels around the target. Click on dark area = no-op */}
+    <div className="fixed inset-0 z-[100] pointer-events-none" role="dialog" aria-modal="true">
+      {/* Spotlight: 4 dark panels around the target. Outside clicks are swallowed; inside the spotlight passes through. */}
       {rect ? (
         <>
           {/* top */}
           <div
-            className="absolute bg-black/70 transition-all duration-200"
+            className="absolute bg-black/70 transition-all duration-200 pointer-events-auto"
             style={{ top: 0, left: 0, right: 0, height: Math.max(0, rect.top) }}
           />
           {/* bottom */}
           <div
-            className="absolute bg-black/70 transition-all duration-200"
+            className="absolute bg-black/70 transition-all duration-200 pointer-events-auto"
             style={{
               top: rect.top + rect.height,
               left: 0,
@@ -399,7 +399,7 @@ export function GuidedTour({ open, steps, onTabChange, onFinish, onSkip }: Props
           />
           {/* left */}
           <div
-            className="absolute bg-black/70 transition-all duration-200"
+            className="absolute bg-black/70 transition-all duration-200 pointer-events-auto"
             style={{
               top: rect.top,
               left: 0,
@@ -409,7 +409,7 @@ export function GuidedTour({ open, steps, onTabChange, onFinish, onSkip }: Props
           />
           {/* right */}
           <div
-            className="absolute bg-black/70 transition-all duration-200"
+            className="absolute bg-black/70 transition-all duration-200 pointer-events-auto"
             style={{
               top: rect.top,
               left: rect.left + rect.width,
@@ -431,13 +431,13 @@ export function GuidedTour({ open, steps, onTabChange, onFinish, onSkip }: Props
           />
         </>
       ) : (
-        <div className="absolute inset-0 bg-black/70" />
+        <div className="absolute inset-0 bg-black/70 pointer-events-auto" />
       )}
 
       {/* Skip button (top-right) */}
       <button
         onClick={handleSkip}
-        className="absolute top-4 right-4 text-xs text-white/60 hover:text-white transition-colors flex items-center gap-1 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-sm"
+        className="absolute top-4 right-4 pointer-events-auto text-xs text-white/60 hover:text-white transition-colors flex items-center gap-1 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-sm"
       >
         <X className="h-3 w-3" />
         Pular tour
@@ -445,7 +445,7 @@ export function GuidedTour({ open, steps, onTabChange, onFinish, onSkip }: Props
 
       {/* Tooltip */}
       <div
-        className="absolute"
+        className="absolute pointer-events-auto"
         style={{
           top: tooltipTop,
           left: tooltipLeft,
