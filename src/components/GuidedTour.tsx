@@ -79,23 +79,41 @@ export function GuidedTour({ open, steps, onTabChange, onFinish, onSkip }: Props
         new CustomEvent("tour:open-section", { detail: { section: step.openSection } })
       );
     }
-    // Find target after a short delay so tab switch / animation can settle
+    // Find target after a delay so tab switch / animation can settle.
+    // Use a longer delay when switching tab or expanding a section so card
+    // entrance animations (stagger-in / accordion) finish before measuring,
+    // otherwise the spotlight rect oscillates ("tela tremendo").
     setVisible(false);
+    const baseDelay = step.switchTab && step.switchTab !== lastTabRef.current
+      ? 600
+      : step.openSection
+      ? 380
+      : 200;
     const t = window.setTimeout(() => {
       measureTarget();
+      // Re-measure once more after the entrance animation likely finished
+      window.setTimeout(() => measureTarget(), 250);
       setVisible(true);
-    }, step.openSection ? 320 : 120);
+    }, baseDelay);
     return () => window.clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stepIndex, open, completed]);
 
-  // Re-measure on resize / scroll
+  // Re-measure on resize / scroll — throttled with rAF to avoid jitter
   useLayoutEffect(() => {
     if (!open || completed) return;
-    const handler = () => measureTarget();
+    let raf = 0;
+    const handler = () => {
+      if (raf) return;
+      raf = window.requestAnimationFrame(() => {
+        raf = 0;
+        measureTarget();
+      });
+    };
     window.addEventListener("resize", handler);
     window.addEventListener("scroll", handler, true);
     return () => {
+      if (raf) cancelAnimationFrame(raf);
       window.removeEventListener("resize", handler);
       window.removeEventListener("scroll", handler, true);
     };
@@ -121,7 +139,9 @@ export function GuidedTour({ open, steps, onTabChange, onFinish, onSkip }: Props
       }
     };
 
-    // Wait until input is mounted, then attach listener
+    // Wait until input is mounted, then attach listener + auto-focus so the
+    // user can immediately type without needing an extra tap (some mobile
+    // browsers intercept the first tap when overlay panels are present).
     const attach = () => {
       const el = find();
       if (!el) {
@@ -131,6 +151,13 @@ export function GuidedTour({ open, steps, onTabChange, onFinish, onSkip }: Props
       check();
       el.addEventListener("input", check);
       el.addEventListener("change", check);
+      window.setTimeout(() => {
+        try {
+          el.focus({ preventScroll: true });
+        } catch {
+          el.focus();
+        }
+      }, 400);
     };
     attach();
 
@@ -152,14 +179,20 @@ export function GuidedTour({ open, steps, onTabChange, onFinish, onSkip }: Props
       setRect(null);
       return;
     }
-    // Scroll into view smoothly if not visible
+    // Don't disturb scroll position if a related input is currently focused
+    // (the user is typing — re-scrolling would dismiss the keyboard on mobile)
+    const active = document.activeElement as HTMLElement | null;
+    const userTyping =
+      !!active &&
+      active.tagName === "INPUT" &&
+      (active.closest(`[data-tour="${step.target}"]`) ||
+        (step.requireInput && active.matches(`[data-tour="${step.requireInput}"]`)));
+
     const r = el.getBoundingClientRect();
     const padding = step.padding ?? 8;
-    const inView =
-      r.top >= 60 && r.bottom <= window.innerHeight - 60;
-    if (!inView) {
+    const inView = r.top >= 60 && r.bottom <= window.innerHeight - 60;
+    if (!inView && !userTyping) {
       el.scrollIntoView({ behavior: "smooth", block: "center" });
-      // Re-measure after scroll
       window.setTimeout(() => {
         const r2 = el.getBoundingClientRect();
         setRect({
