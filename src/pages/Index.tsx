@@ -330,6 +330,13 @@ const Index = () => {
         }}
       />
 
+      <ExportSheet
+        open={exportSheetOpen}
+        onOpenChange={setExportSheetOpen}
+        routes={routes}
+        extraExpenses={extraExpenses}
+      />
+
       <nav className="fixed bottom-4 left-1/2 -translate-x-1/2 z-20">
         <div className="flex items-end gap-1 bg-card/90 backdrop-blur-xl border border-border/30 rounded-3xl px-2 py-2 shadow-2xl shadow-primary/10">
           {tabs.map((t) => {
