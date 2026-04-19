@@ -29,12 +29,10 @@ function ProfitHighlight({
   profit,
   hours,
   perHour,
-  badge,
 }: {
   profit: number;
   hours: number;
   perHour: number;
-  badge: BadgeData;
 }) {
   const animated = useCountUp(profit, 800);
   return (
@@ -48,9 +46,6 @@ function ProfitHighlight({
         <span>·</span>
         <span className="flex items-center gap-1"><TrendingUp className="h-3 w-3" />{fmt(perHour)}/h</span>
       </div>
-      <span className={`inline-flex items-center gap-1 mt-2 text-[11px] font-medium px-2.5 py-1 rounded-full ${badge.classes}`}>
-        {badge.label}
-      </span>
     </div>
   );
 }
@@ -143,7 +138,6 @@ export function RouteFeedback({ route, allRoutes, onClose }: Props) {
           profit={profit}
           hours={hours}
           perHour={perHour}
-          badge={badge}
         />
 
 

@@ -1,11 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Check, Pencil, AlertCircle } from "lucide-react";
+import { Check, AlertCircle } from "lucide-react";
 import {
   calculateEntry,
   getActiveRoute,
@@ -15,7 +13,7 @@ import {
   type ActiveRoute,
   type RouteEntry,
 } from "@/lib/storage";
-import { PLATFORMS } from "@/lib/platforms";
+
 import { vibrate } from "@/lib/haptics";
 import { toast } from "sonner";
 import { format } from "date-fns";
@@ -47,12 +45,12 @@ export function FinishRouteSheet({ open, onOpenChange, onFinished, onOpenSetting
   const [active, setActive] = useState<ActiveRoute | null>(null);
   const [kmEnd, setKmEnd] = useState("");
   const [pricePerLiter, setPricePerLiter] = useState("");
-  const [dailyValue, setDailyValue] = useState(0); // read from settings, not user-editable here
+  const [dailyValue, setDailyValue] = useState<string>("");
+  const [defaultDailyValue, setDefaultDailyValue] = useState(0);
   const [avgConsumption, setAvgConsumption] = useState(10);
   const [hasDefaultPrice, setHasDefaultPrice] = useState(true);
   const [saving, setSaving] = useState<"idle" | "saving" | "done">("idle");
   const [now, setNow] = useState(() => Date.now());
-  const [platform, setPlatform] = useState<string>("none");
 
   useEffect(() => {
     if (open) {
@@ -63,9 +61,10 @@ export function FinishRouteSheet({ open, onOpenChange, onFinished, onOpenSetting
       const defaultPrice = Number(settings.defaultPricePerLiter ?? 0);
       setPricePerLiter(defaultPrice > 0 ? String(defaultPrice) : "");
       setHasDefaultPrice(defaultPrice > 0);
-      setDailyValue(Number(settings.defaultDailyValue ?? 350));
+      const dDaily = Number(settings.defaultDailyValue ?? 350);
+      setDefaultDailyValue(dDaily);
+      setDailyValue(dDaily > 0 ? String(dDaily) : "");
       setAvgConsumption(settings.avgConsumption || 10);
-      setPlatform("none");
       setSaving("idle");
       setNow(Date.now());
     }
@@ -93,12 +92,13 @@ export function FinishRouteSheet({ open, onOpenChange, onFinished, onOpenSetting
   const kmTouched = kmEnd.trim() !== "";
   const kmInvalid = kmTouched && (Number.isNaN(kmEndNum) || kmEndNum <= kmStart);
 
+  const dailyValueNum = Number(dailyValue);
   const valid =
     !!active &&
     kmTouched &&
     !kmInvalid &&
     Number(pricePerLiter) > 0 &&
-    dailyValue > 0;
+    dailyValueNum > 0;
 
   const handleSave = () => {
     if (!valid || !active) return;
@@ -113,12 +113,11 @@ export function FinishRouteSheet({ open, onOpenChange, onFinished, onOpenSetting
           dateStr,
           active.kmStart,
           kmEndNum,
-          dailyValue,
+          dailyValueNum,
           Number(pricePerLiter),
           timeStart,
           timeEnd,
           active.helperCost,
-          platform,
         );
         saveRoute(entry);
         setActiveRoute(null);
@@ -171,24 +170,37 @@ export function FinishRouteSheet({ open, onOpenChange, onFinished, onOpenSetting
               </p>
             </div>
 
-            {/* Diária — leitura das configurações */}
-            <div className="rounded-lg bg-secondary/30 border border-border/40 p-3 flex items-center justify-between gap-2">
-              <div className="min-w-0">
-                <p className="text-[11px] uppercase tracking-wider text-muted-foreground">Diária</p>
-                <p className="text-sm font-semibold tabular-nums mt-0.5">{fmt(dailyValue)}</p>
+            {/* Diária — editável, padrão das configurações */}
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <Label className="text-xs text-muted-foreground">
+                  Diária (R$)
+                  {defaultDailyValue > 0 && (
+                    <span className="text-muted-foreground/60"> — padrão {fmt(defaultDailyValue)}</span>
+                  )}
+                </Label>
+                {onOpenSettings && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onOpenChange(false);
+                      setTimeout(() => onOpenSettings(), 150);
+                    }}
+                    className="text-xs font-medium text-primary hover:underline shrink-0"
+                  >
+                    Alterar padrão
+                  </button>
+                )}
               </div>
-              {onOpenSettings && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    onOpenChange(false);
-                    setTimeout(() => onOpenSettings(), 150);
-                  }}
-                  className="text-xs font-medium text-primary hover:underline shrink-0"
-                >
-                  Alterar
-                </button>
-              )}
+              <Input
+                type="number"
+                step="0.01"
+                inputMode="decimal"
+                value={dailyValue}
+                onChange={(e) => setDailyValue(e.target.value)}
+                placeholder="Ex.: 350"
+                className="text-lg"
+              />
             </div>
 
             <div>
@@ -218,69 +230,29 @@ export function FinishRouteSheet({ open, onOpenChange, onFinished, onOpenSetting
               )}
             </div>
 
-            {/* Plataforma — opcional */}
-            <div>
-              <Label className="text-xs text-muted-foreground">
-                Plataforma <span className="text-muted-foreground/60">— opcional</span>
-              </Label>
-              <Select value={platform} onValueChange={setPlatform}>
-                <SelectTrigger className="mt-1">
-                  <SelectValue placeholder="Sem plataforma" />
-                </SelectTrigger>
-                <SelectContent>
-                  {PLATFORMS.map((p) => (
-                    <SelectItem key={p.id} value={p.id}>
-                      <span className="inline-flex items-center gap-2">
-                        <span
-                          className="h-2 w-2 rounded-full"
-                          style={{ backgroundColor: p.dot }}
-                          aria-hidden="true"
-                        />
-                        {p.label}
-                      </span>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
             {!hasDefaultPrice && (
               <div className="rounded-lg border border-warning/40 bg-warning/10 p-3 text-xs text-foreground">
                 Defina o <span className="font-semibold">Preço Padrão da Gasolina</span> em Configurações para calcular o custo automaticamente.
               </div>
             )}
 
+            <div>
+              <Label className="text-xs text-muted-foreground">Preço da gasolina (R$/L)</Label>
+              <Input
+                type="number"
+                step="0.01"
+                inputMode="decimal"
+                value={pricePerLiter}
+                onChange={(e) => setPricePerLiter(e.target.value)}
+                placeholder="Ex.: 5.99"
+                className="mt-1"
+              />
+            </div>
+
             {kmDriven > 0 && Number(pricePerLiter) > 0 && (
-              <div className="rounded-lg bg-secondary/50 p-3 text-xs text-muted-foreground animate-time-flash flex items-center justify-between gap-2" key={`${kmDriven}-${pricePerLiter}`}>
-                <span>
-                  Combustível: {litersUsed.toFixed(1)} L · {fmt(fuelCost)}{" "}
-                  <span className="text-muted-foreground/70">(R$ {Number(pricePerLiter).toFixed(2)}/L)</span>
-                </span>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <button
-                      type="button"
-                      aria-label="Ajustar preço da gasolina"
-                      className="shrink-0 inline-flex items-center justify-center h-6 w-6 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
-                    >
-                      <Pencil className="h-3 w-3" />
-                    </button>
-                  </PopoverTrigger>
-                  <PopoverContent align="end" className="w-56 p-3">
-                    <Label className="text-xs text-muted-foreground">Preço da gasolina (R$/L)</Label>
-                    <Input
-                      type="number"
-                      step="0.01"
-                      inputMode="decimal"
-                      value={pricePerLiter}
-                      onChange={(e) => setPricePerLiter(e.target.value)}
-                      className="mt-1 h-9"
-                      autoFocus
-                    />
-                    <p className="text-[10px] text-muted-foreground mt-1.5">
-                      Apenas para esta rota. Para alterar o padrão, use Configurações.
-                    </p>
-                  </PopoverContent>
-                </Popover>
+              <div className="rounded-lg bg-secondary/50 p-3 text-xs text-muted-foreground animate-time-flash" key={`${kmDriven}-${pricePerLiter}`}>
+                Combustível: {litersUsed.toFixed(1)} L · {fmt(fuelCost)}{" "}
+                <span className="text-muted-foreground/70">(R$ {Number(pricePerLiter).toFixed(2)}/L)</span>
               </div>
             )}
 

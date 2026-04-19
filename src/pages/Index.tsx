@@ -24,9 +24,6 @@ import { StartRouteSheet } from "@/components/StartRouteSheet";
 import { FinishRouteSheet } from "@/components/FinishRouteSheet";
 import { GuidedTour, type TourStep } from "@/components/GuidedTour";
 import { EmptyDashboard } from "@/components/EmptyDashboard";
-import { DailyBarChart } from "@/components/DailyBarChart";
-import { WeekComparison } from "@/components/WeekComparison";
-import { PlatformBreakdown } from "@/components/PlatformBreakdown";
 import { ExportSheet } from "@/components/ExportSheet";
 import { Home, Route, DollarSign, Settings, LogOut, Play, Square, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -226,8 +223,6 @@ const Index = () => {
             {hasAnyRoute ? (
               <>
                 <SummaryCards routes={routes} />
-                <DailyBarChart routes={routes} />
-                <WeekComparison routes={routes} />
                 <GoalProgress routes={routes} />
                 <QuinzenaSummary routes={routes} />
               </>
@@ -304,7 +299,7 @@ const Index = () => {
               </Button>
             </div>
             <OperationalCosts routes={routes} extraExpenses={extraExpenses} />
-            <PlatformBreakdown routes={routes} />
+            
             <ExtraExpenseForm onSave={refresh} />
             <ExtraExpenseList expenses={extraExpenses} onDelete={refresh} />
           </>
