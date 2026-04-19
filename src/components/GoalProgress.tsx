@@ -140,14 +140,6 @@ function CardFace({ data, active }: { data: FaceData; active: boolean }) {
           <GoalRing pct={data.pct} expectedPct={data.expectedPct} tone={tone} active={active} />
         )}
         <div className="flex-1 min-w-0 space-y-2">
-          {!noGoal && data.remaining > 0 && (
-            <div>
-              <p className="text-[11px] uppercase tracking-wider text-muted-foreground">Falta para a meta</p>
-              <p className={`text-lg font-bold tabular-nums leading-tight ${TONE[tone].text}`}>
-                {fmt(data.remaining)}
-              </p>
-            </div>
-          )}
           <div>
             <p className="text-[11px] uppercase tracking-wider text-muted-foreground">Lucro acumulado</p>
             <p className="text-2xl font-bold tabular-nums leading-tight">
