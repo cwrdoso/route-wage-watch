@@ -100,7 +100,7 @@ export function OperationalCosts({ routes: allRoutes, extraExpenses }: Props) {
       </div>
 
       {/* Cost breakdown */}
-      <Card className="glass-card animate-stagger-in" style={{ animationDelay: "160ms" }}>
+      <Card data-tour="cost-breakdown" className="glass-card animate-stagger-in" style={{ animationDelay: "160ms" }}>
         <CardHeader className="pb-3">
           <CardTitle className="text-lg flex items-center gap-2">
             <Wallet className="h-5 w-5 text-warning" />

@@ -219,7 +219,7 @@ export function GoalProgress({ routes }: Props) {
   };
 
   return (
-    <div className="relative">
+    <div data-tour="goal-progress" className="relative">
       {/* Toggle (fora da cena 3D para não rodar com o flip) */}
       <div className="flex justify-center mb-3">
         <div className="relative inline-flex bg-secondary/70 rounded-full p-0.5 border border-border/40">
