@@ -182,10 +182,12 @@ export function GuidedTour({ open, steps, onTabChange, onFinish, onSkip }: Props
   function handleNext() {
     vibrate(20);
     const isLast = stepIndex === steps.length - 1;
-    // If current step required input, ask host to persist it
-    if (step?.requireInput) {
+    // If current step touched settings (input or section open), persist values
+    if (step?.requireInput || step?.openSection || step?.switchTab === "settings") {
       window.dispatchEvent(
-        new CustomEvent("tour:save-essentials", { detail: { field: step.requireInput } })
+        new CustomEvent("tour:save-essentials", {
+          detail: { field: step?.requireInput },
+        })
       );
     }
     setVisible(false);
