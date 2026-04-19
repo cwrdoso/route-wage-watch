@@ -443,6 +443,7 @@ export function GuidedTour({ open, steps, onTabChange, onFinish, onSkip }: Props
           </p>
           <Button
             onClick={handleNext}
+            disabled={!!step.requireInput && !inputValid}
             className="w-full h-10 mt-1 font-semibold"
             size="sm"
           >
@@ -451,10 +452,21 @@ export function GuidedTour({ open, steps, onTabChange, onFinish, onSkip }: Props
                 <Check className="h-4 w-4 mr-1" />
                 Concluir
               </>
+            ) : step.requireInput ? (
+              <>Salvar e continuar →</>
             ) : (
               <>Entendi →</>
             )}
           </Button>
+          {step.requireInput && (
+            <button
+              type="button"
+              onClick={handleNext}
+              className="w-full text-[12px] text-muted-foreground hover:text-foreground transition-colors py-1"
+            >
+              Pular esta etapa
+            </button>
+          )}
         </div>
       </div>
     </div>,
