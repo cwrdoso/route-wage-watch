@@ -418,3 +418,81 @@
   background: hsl(var(--card));
   transform: translateY(-50%);
 }
+
+/* ====== Auth screen background ====== */
+.auth-bg-gradient {
+  background:
+    radial-gradient(ellipse at 20% 10%, hsl(270 60% 25% / 0.55), transparent 55%),
+    radial-gradient(ellipse at 85% 90%, hsl(290 70% 30% / 0.45), transparent 55%),
+    radial-gradient(ellipse at 50% 50%, hsl(260 50% 14% / 0.6), transparent 70%),
+    linear-gradient(180deg, hsl(260 25% 6%) 0%, hsl(265 30% 9%) 50%, hsl(260 22% 5%) 100%);
+  background-size: 200% 200%;
+  animation: auth-bg-shift 18s ease-in-out infinite;
+}
+@keyframes auth-bg-shift {
+  0%, 100% { background-position: 0% 0%, 100% 100%, 50% 50%, 0% 0%; }
+  50%      { background-position: 30% 20%, 70% 80%, 60% 40%, 0% 0%; }
+}
+
+.auth-orb {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(80px);
+  opacity: 0.55;
+  pointer-events: none;
+  will-change: transform;
+}
+.auth-orb-1 {
+  top: -10%;
+  left: -10%;
+  width: 22rem;
+  height: 22rem;
+  background: radial-gradient(circle, hsl(270 80% 55% / 0.7), transparent 70%);
+  animation: orb-float-1 14s ease-in-out infinite;
+}
+.auth-orb-2 {
+  bottom: -15%;
+  right: -10%;
+  width: 26rem;
+  height: 26rem;
+  background: radial-gradient(circle, hsl(295 75% 50% / 0.55), transparent 70%);
+  animation: orb-float-2 18s ease-in-out infinite;
+}
+.auth-orb-3 {
+  top: 40%;
+  left: 55%;
+  width: 16rem;
+  height: 16rem;
+  background: radial-gradient(circle, hsl(250 85% 60% / 0.45), transparent 70%);
+  animation: orb-float-3 22s ease-in-out infinite;
+}
+@keyframes orb-float-1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50%      { transform: translate(40px, 60px) scale(1.1); }
+}
+@keyframes orb-float-2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50%      { transform: translate(-50px, -40px) scale(1.15); }
+}
+@keyframes orb-float-3 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50%      { transform: translate(-30px, 40px) scale(0.9); }
+}
+
+.auth-grid {
+  background-image:
+    linear-gradient(hsl(var(--primary) / 0.4) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(var(--primary) / 0.4) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-bg-gradient,
+  .auth-orb-1,
+  .auth-orb-2,
+  .auth-orb-3 {
+    animation: none;
+  }
+}
