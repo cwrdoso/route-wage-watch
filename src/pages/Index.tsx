@@ -103,6 +103,8 @@ const Index = () => {
   const [finishSheetOpen, setFinishSheetOpen] = useState(false);
   const [activeRefreshKey, setActiveRefreshKey] = useState(0);
 
+  const [tourOpen, setTourOpen] = useState(false);
+
   // Auto-folga + perfil — once on mount
   useEffect(() => {
     ensureAutoDayOffs();
@@ -115,6 +117,13 @@ const Index = () => {
       }
     };
     fetchProfile();
+
+    // Trigger guided tour on first ever load
+    if (!localStorage.getItem(TOUR_FLAG_KEY)) {
+      // Small delay so the home renders cleanly first
+      const t = window.setTimeout(() => setTourOpen(true), 600);
+      return () => window.clearTimeout(t);
+    }
   }, []);
 
   const refresh = () => {
@@ -216,6 +225,7 @@ const Index = () => {
                       : "Toque abaixo para iniciar sua rota e cronometrar automaticamente."}
                   </p>
                   <Button
+                    data-tour="start-route-btn"
                     onClick={handleFabClick}
                     className={`w-full h-12 gap-2 text-base font-semibold ${
                       hasActiveRoute
@@ -275,6 +285,7 @@ const Index = () => {
           {tabs.map((t) => (
             <button
               key={t.key}
+              data-tour={`tab-${t.key}`}
               onClick={() => handleTabChange(t.key)}
               className={`relative flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300 ${
                 tab === t.key
@@ -287,6 +298,20 @@ const Index = () => {
           ))}
         </div>
       </nav>
+
+      <GuidedTour
+        open={tourOpen}
+        steps={TOUR_STEPS}
+        onTabChange={(t) => setTab(t as Tab)}
+        onFinish={() => {
+          localStorage.setItem(TOUR_FLAG_KEY, "true");
+          setTourOpen(false);
+        }}
+        onSkip={() => {
+          localStorage.setItem(TOUR_FLAG_KEY, "true");
+          setTourOpen(false);
+        }}
+      />
     </div>
   );
 };
