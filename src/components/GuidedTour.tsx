@@ -179,14 +179,20 @@ export function GuidedTour({ open, steps, onTabChange, onFinish, onSkip }: Props
       setRect(null);
       return;
     }
-    // Scroll into view smoothly if not visible
+    // Don't disturb scroll position if a related input is currently focused
+    // (the user is typing — re-scrolling would dismiss the keyboard on mobile)
+    const active = document.activeElement as HTMLElement | null;
+    const userTyping =
+      !!active &&
+      active.tagName === "INPUT" &&
+      (active.closest(`[data-tour="${step.target}"]`) ||
+        (step.requireInput && active.matches(`[data-tour="${step.requireInput}"]`)));
+
     const r = el.getBoundingClientRect();
     const padding = step.padding ?? 8;
-    const inView =
-      r.top >= 60 && r.bottom <= window.innerHeight - 60;
-    if (!inView) {
+    const inView = r.top >= 60 && r.bottom <= window.innerHeight - 60;
+    if (!inView && !userTyping) {
       el.scrollIntoView({ behavior: "smooth", block: "center" });
-      // Re-measure after scroll
       window.setTimeout(() => {
         const r2 = el.getBoundingClientRect();
         setRect({
