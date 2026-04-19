@@ -1,0 +1,238 @@
+import { useState, useEffect } from "react";
+import {
+  getRoutes,
+  getSettings,
+  saveSettings,
+  ensureAutoDayOffs,
+  type RouteEntry,
+} from "@/lib/storage";
+import { RouteForm } from "@/components/RouteForm";
+import { SummaryCards } from "@/components/SummaryCards";
+import { RevenueChart } from "@/components/RevenueChart";
+import { RouteHistory } from "@/components/RouteHistory";
+import { OperationalCosts } from "@/components/OperationalCosts";
+import { SettingsPanel } from "@/components/SettingsPanel";
+import { ExtraExpenseForm, getExtraExpenses, type AdditionalExpense } from "@/components/ExtraExpenseForm";
+import { QuinzenaSummary } from "@/components/QuinzenaSummary";
+import { ExtraExpenseList } from "@/components/ExtraExpenseList";
+import { GoalProgress } from "@/components/GoalProgress";
+import { RouteFeedback } from "@/components/RouteFeedback";
+import { RouteModeToggle, type RouteMode } from "@/components/RouteModeToggle";
+// FAB removido — botão inline dentro da aba Rotas
+import { ActiveRouteBanner } from "@/components/ActiveRouteBanner";
+import { StartRouteSheet } from "@/components/StartRouteSheet";
+import { FinishRouteSheet } from "@/components/FinishRouteSheet";
+import { Home, Route, DollarSign, Settings, LogOut, Play, Square } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
+import { vibrate } from "@/lib/haptics";
+import logoRotta from "@/assets/logo-rotta.png";
+
+type Tab = "home" | "routes" | "costs" | "settings";
+
+const TAB_ORDER: Tab[] = ["home", "routes", "costs", "settings"];
+
+const Index = () => {
+  const navigate = useNavigate();
+  const [routes, setRoutes] = useState<RouteEntry[]>(getRoutes);
+  const [extraExpenses, setExtraExpenses] = useState<AdditionalExpense[]>(getExtraExpenses);
+  const [tab, setTab] = useState<Tab>("home");
+  const [prevTabIndex, setPrevTabIndex] = useState(0);
+  const [bouncingTab, setBouncingTab] = useState<Tab | null>(null);
+  const [displayName, setDisplayName] = useState<string>("");
+  const [lastSavedRoute, setLastSavedRoute] = useState<RouteEntry | null>(null);
+  const [routeMode, setRouteMode] = useState<RouteMode>(() => getSettings().routeMode ?? "dynamic");
+  const [startSheetOpen, setStartSheetOpen] = useState(false);
+  const [finishSheetOpen, setFinishSheetOpen] = useState(false);
+  const [activeRefreshKey, setActiveRefreshKey] = useState(0);
+
+  // Auto-folga + perfil — once on mount
+  useEffect(() => {
+    ensureAutoDayOffs();
+    setRoutes(getRoutes());
+    const fetchProfile = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data } = await supabase.from("profiles").select("display_name").eq("user_id", user.id).single();
+        if (data?.display_name) setDisplayName(data.display_name);
+      }
+    };
+    fetchProfile();
+  }, []);
+
+  const refresh = () => {
+    setRoutes(getRoutes());
+    setExtraExpenses(getExtraExpenses());
+  };
+
+  const handleRouteSaved = (entry: RouteEntry) => {
+    refresh();
+    setLastSavedRoute(entry);
+    setActiveRefreshKey((k) => k + 1);
+  };
+
+  const handleModeChange = (m: RouteMode) => {
+    setRouteMode(m);
+    const s = getSettings();
+    saveSettings({ ...s, routeMode: m });
+  };
+
+  const handleFabClick = () => {
+    // If active route exists -> finish; else start
+    setActiveRefreshKey((k) => k + 1);
+    const hasActive = !!localStorage.getItem("driver_active_route");
+    if (hasActive) setFinishSheetOpen(true);
+    else setStartSheetOpen(true);
+  };
+
+  const handleTabChange = (next: Tab) => {
+    setPrevTabIndex(TAB_ORDER.indexOf(tab));
+    setTab(next);
+    setBouncingTab(next);
+    vibrate(20);
+    setLastSavedRoute(null);
+    setTimeout(() => setBouncingTab(null), 220);
+  };
+
+  const currentIndex = TAB_ORDER.indexOf(tab);
+  const direction = currentIndex >= prevTabIndex ? "right" : "left";
+  const tabAnimation = direction === "right" ? "animate-slide-in-right" : "animate-slide-in-left";
+
+  const tabs: { key: Tab; icon: typeof Home }[] = [
+    { key: "home", icon: Home },
+    { key: "routes", icon: Route },
+    { key: "costs", icon: DollarSign },
+    { key: "settings", icon: Settings },
+  ];
+
+  const hasActiveRoute = !!localStorage.getItem("driver_active_route");
+
+  return (
+    <div className="min-h-screen pb-20">
+      <ActiveRouteBanner
+        refreshKey={activeRefreshKey}
+        onFinish={() => setFinishSheetOpen(true)}
+      />
+
+      <header className="border-b border-border/50 px-4 py-3 sm:py-6">
+        <div className="max-w-lg mx-auto flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2 min-w-0">
+            <img src={logoRotta} alt="Rotta" className="h-14 sm:h-24 md:h-32 w-auto" />
+          </div>
+          <div className="flex items-center gap-2 sm:gap-4 min-w-0">
+            {displayName && (
+              <span className="text-sm sm:text-lg font-semibold bg-gradient-to-r from-primary to-accent-foreground bg-clip-text text-transparent truncate">
+                Olá, {displayName.split(" ")[0]}
+              </span>
+            )}
+            <button
+              onClick={async () => { await supabase.auth.signOut(); navigate("/auth"); }}
+              className="flex items-center justify-center h-9 w-9 sm:h-10 sm:w-10 rounded-full bg-secondary/50 text-muted-foreground hover:text-foreground hover:bg-secondary transition-all duration-300 shrink-0"
+              aria-label="Sair"
+            >
+              <LogOut className="h-4 w-4 sm:h-5 sm:w-5" />
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <main key={tab} className={`max-w-lg mx-auto px-4 mt-6 space-y-6 md:space-y-8 ${tabAnimation}`}>
+        {tab === "home" && (
+          <>
+            <SummaryCards routes={routes} />
+            <GoalProgress routes={routes} />
+            <QuinzenaSummary routes={routes} />
+          </>
+        )}
+        {tab === "routes" && (
+          <>
+            <RouteModeToggle mode={routeMode} onChange={handleModeChange} />
+
+            <div key={routeMode} className="animate-fade-in-soft">
+              {routeMode === "manual" ? (
+                <RouteForm onSave={handleRouteSaved} />
+              ) : (
+                <div className="rounded-xl border border-border/50 bg-card/60 p-5 sm:p-6 text-center space-y-4">
+                  <p className="text-sm text-muted-foreground">
+                    {hasActiveRoute
+                      ? "Sua rota está em andamento. Toque abaixo para finalizar quando voltar."
+                      : "Toque abaixo para iniciar sua rota e cronometrar automaticamente."}
+                  </p>
+                  <Button
+                    onClick={handleFabClick}
+                    className={`w-full h-12 gap-2 text-base font-semibold ${
+                      hasActiveRoute
+                        ? "bg-success hover:bg-success/90 text-white"
+                        : ""
+                    }`}
+                  >
+                    {hasActiveRoute ? (
+                      <>
+                        <Square className="h-4 w-4 fill-current" />
+                        Finalizar rota
+                      </>
+                    ) : (
+                      <>
+                        <Play className="h-4 w-4 fill-current" />
+                        Iniciar rota
+                      </>
+                    )}
+                  </Button>
+                </div>
+              )}
+            </div>
+
+            {lastSavedRoute && (
+              <RouteFeedback
+                route={lastSavedRoute}
+                allRoutes={routes}
+                onClose={() => setLastSavedRoute(null)}
+              />
+            )}
+            <RouteHistory routes={routes} onDelete={refresh} />
+          </>
+        )}
+        {tab === "costs" && (
+          <>
+            <OperationalCosts routes={routes} extraExpenses={extraExpenses} />
+            <ExtraExpenseForm onSave={refresh} />
+            <ExtraExpenseList expenses={extraExpenses} onDelete={refresh} />
+          </>
+        )}
+        {tab === "settings" && <SettingsPanel />}
+      </main>
+
+      <StartRouteSheet
+        open={startSheetOpen}
+        onOpenChange={setStartSheetOpen}
+        onStarted={() => setActiveRefreshKey((k) => k + 1)}
+      />
+      <FinishRouteSheet
+        open={finishSheetOpen}
+        onOpenChange={setFinishSheetOpen}
+        onFinished={(entry) => handleRouteSaved(entry)}
+      />
+
+      <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 z-20">
+        <div className="flex items-center gap-2 bg-card/90 backdrop-blur-xl border border-border/30 rounded-full px-3 py-2 shadow-2xl shadow-primary/10">
+          {tabs.map((t) => (
+            <button
+              key={t.key}
+              onClick={() => handleTabChange(t.key)}
+              className={`relative flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300 ${
+                tab === t.key
+                  ? "bg-primary text-primary-foreground shadow-lg shadow-primary/40 scale-105"
+                  : "text-muted-foreground hover:text-foreground"
+              } ${bouncingTab === t.key ? "animate-bounce-tap" : ""}`}
+            >
+              <t.icon className="h-5 w-5" strokeWidth={tab === t.key ? 2.5 : 1.5} />
+            </button>
+          ))}
+        </div>
+      </nav>
+    </div>
+  );
+};
+
+export default Index;

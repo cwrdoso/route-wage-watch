@@ -1,0 +1,423 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 260 20% 7%;
+    --foreground: 260 10% 92%;
+
+    --card: 260 18% 11%;
+    --card-foreground: 260 10% 92%;
+
+    --popover: 260 18% 11%;
+    --popover-foreground: 260 10% 92%;
+
+    --primary: 270 60% 55%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 260 16% 16%;
+    --secondary-foreground: 260 10% 85%;
+
+    --muted: 260 14% 14%;
+    --muted-foreground: 260 10% 50%;
+
+    --accent: 270 40% 18%;
+    --accent-foreground: 270 60% 75%;
+
+    --destructive: 0 65% 50%;
+    --destructive-foreground: 0 0% 95%;
+
+    --border: 260 14% 18%;
+    --input: 260 14% 18%;
+    --ring: 270 60% 55%;
+
+    --radius: 0.75rem;
+
+    --sidebar-background: 260 18% 9%;
+    --sidebar-foreground: 260 10% 85%;
+    --sidebar-primary: 270 60% 55%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 260 14% 14%;
+    --sidebar-accent-foreground: 260 10% 85%;
+    --sidebar-border: 260 14% 18%;
+    --sidebar-ring: 270 60% 55%;
+
+    --success: 142 60% 45%;
+    --warning: 38 92% 50%;
+    --info: 210 80% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+
+  /* Smooth focus glow on inputs */
+  input:focus-visible,
+  textarea:focus-visible {
+    box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.35);
+    border-color: hsl(var(--primary) / 0.6);
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+
+  /* Hide native number-input spinners across browsers */
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+
+  /* Buttons smooth transitions */
+  button {
+    transition: all 0.15s ease;
+  }
+}
+
+@layer utilities {
+  @keyframes shimmer-bar {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(200%); }
+  }
+  .shimmer-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      hsl(0 0% 100% / 0.18) 50%,
+      transparent 100%
+    );
+    animation: shimmer-bar 2.4s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  @keyframes ring-pulse {
+    0%, 100% { filter: drop-shadow(0 0 4px hsl(var(--primary) / 0.4)); }
+    50% { filter: drop-shadow(0 0 14px hsl(var(--primary) / 0.7)); }
+  }
+  .ring-pulse {
+    animation: ring-pulse 2.6s ease-in-out infinite;
+  }
+}
+
+@layer utilities {
+  .glass-card {
+    @apply bg-card/80 backdrop-blur-md border border-border/50 rounded-xl;
+    transition:
+      transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+      border-color 0.35s ease;
+    will-change: transform;
+  }
+  .glass-card:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      0 10px 30px -12px hsl(var(--primary) / 0.25),
+      0 4px 12px -6px hsl(0 0% 0% / 0.4);
+    border-color: hsl(var(--primary) / 0.35);
+  }
+
+  /* Subtle inner sheen on premium cards */
+  .premium-sheen {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .premium-sheen::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      135deg,
+      hsl(0 0% 100% / 0.06) 0%,
+      transparent 35%,
+      transparent 65%,
+      hsl(var(--primary) / 0.05) 100%
+    );
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Soft ambient pulse for active goal ring container */
+  @keyframes ambient-glow {
+    0%, 100% { box-shadow: 0 0 0 0 hsl(var(--primary) / 0); }
+    50%      { box-shadow: 0 0 32px -4px hsl(var(--primary) / 0.18); }
+  }
+  .ambient-glow {
+    animation: ambient-glow 4s ease-in-out infinite;
+  }
+
+  /* Number reveal: blur + slide-up, very subtle */
+  @keyframes number-reveal {
+    0%   { opacity: 0; transform: translateY(6px); filter: blur(6px); }
+    100% { opacity: 1; transform: translateY(0); filter: blur(0); }
+  }
+  .animate-number-reveal {
+    animation: number-reveal 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  /* Icon micro-bounce on mount */
+  @keyframes icon-pop {
+    0%   { transform: scale(0.6); opacity: 0; }
+    60%  { transform: scale(1.1); opacity: 1; }
+    100% { transform: scale(1); }
+  }
+  .animate-icon-pop {
+    animation: icon-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+
+  /* Button press feedback */
+  .press-feedback {
+    transition: transform 0.15s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .press-feedback:active {
+    transform: scale(0.96);
+  }
+
+  /* Ripple on press */
+  .ripple-container {
+    position: relative;
+    overflow: hidden;
+  }
+  .ripple-effect {
+    position: absolute;
+    border-radius: 50%;
+    transform: scale(0);
+    animation: ripple 0.6s linear;
+    background-color: rgba(255, 255, 255, 0.4);
+    pointer-events: none;
+  }
+}
+
+/* ============== Keyframe animations ============== */
+@keyframes float-soft {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-6px); }
+}
+.animate-float-soft {
+  animation: float-soft 2.5s ease-in-out infinite alternate;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-8px); }
+  40% { transform: translateX(8px); }
+  60% { transform: translateX(-6px); }
+  80% { transform: translateX(6px); }
+}
+.animate-shake {
+  animation: shake 0.4s ease-in-out;
+}
+
+@keyframes ripple {
+  to {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+@keyframes bounce-tap {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.25); }
+  100% { transform: scale(1); }
+}
+.animate-bounce-tap {
+  animation: bounce-tap 0.2s ease-out;
+}
+
+@keyframes slide-down-fade {
+  0% {
+    opacity: 0;
+    transform: translateY(-12px);
+    max-height: 0;
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    max-height: 200px;
+  }
+}
+.animate-slide-down-fade {
+  animation: slide-down-fade 0.35s ease-out;
+}
+
+@keyframes stagger-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-stagger-in {
+  opacity: 0;
+  animation: stagger-in 0.45s ease-out forwards;
+}
+
+@keyframes draw-line {
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes grow-bar {
+  from { width: 0%; }
+}
+.animate-grow-bar {
+  animation: grow-bar 0.5s ease-out;
+}
+
+@keyframes pulse-skeleton {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+}
+.animate-pulse-skeleton {
+  animation: pulse-skeleton 1.5s ease-in-out infinite;
+}
+
+/* ====== Rota Dinâmica ====== */
+@keyframes fab-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 hsl(var(--primary) / 0.5); }
+  70% { box-shadow: 0 0 0 14px hsl(var(--primary) / 0); }
+}
+.animate-fab-pulse {
+  animation: fab-pulse 2s ease-out infinite;
+}
+
+@keyframes status-dot {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.4); opacity: 0.7; }
+}
+.animate-status-dot {
+  animation: status-dot 1.5s ease-in-out infinite;
+}
+
+@keyframes slide-down-banner {
+  0% { opacity: 0; transform: translateY(-48px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.animate-slide-down-banner {
+  animation: slide-down-banner 0.3s ease-out;
+}
+
+@keyframes fab-icon-swap {
+  0% { transform: scale(0.8) rotate(0deg); opacity: 0; }
+  100% { transform: scale(1) rotate(180deg); opacity: 1; }
+}
+.animate-fab-icon-swap {
+  animation: fab-icon-swap 0.35s ease-out;
+}
+
+@keyframes time-flash {
+  0% { opacity: 0.55; }
+  100% { opacity: 1; }
+}
+.animate-time-flash {
+  animation: time-flash 0.25s ease-out;
+}
+
+@keyframes fade-in-soft {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+.animate-fade-in-soft {
+  animation: fade-in-soft 0.4s ease-out;
+}
+
+/* ====== 3D Flip Card ====== */
+.scene {
+  perspective: 1400px;
+  perspective-origin: 50% 50%;
+}
+.card-flip {
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+  will-change: transform;
+}
+.card-flip.flipped {
+  transform: rotateY(180deg);
+}
+.face {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform: rotateY(0deg);
+  -webkit-transform: rotateY(0deg);
+}
+.face-back {
+  position: absolute;
+  inset: 0;
+  transform: rotateY(180deg);
+  -webkit-transform: rotateY(180deg);
+}
+/* Disable hover effects entirely inside 3D scene (Quinzena/Mês progress card) */
+.scene .glass-card,
+.scene .glass-card:hover {
+  transform: none !important;
+  box-shadow: none !important;
+  border-color: hsl(var(--primary) / 0.2) !important;
+  transition: none;
+}
+.scene .glass-card.face {
+  animation: none !important;
+}
+.scene .premium-sheen::before {
+  display: none;
+}
+
+/* Toggle pill background slider */
+.mode-toggle {
+  position: relative;
+  display: inline-flex;
+  background: hsl(var(--secondary) / 0.7);
+  border: 1px solid hsl(var(--border) / 0.5);
+  border-radius: 999px;
+  padding: 4px;
+}
+.mode-toggle .pill {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  width: calc(50% - 4px);
+  background: hsl(var(--primary));
+  border-radius: 999px;
+  transition: transform 200ms cubic-bezier(0.32, 0.72, 0, 1);
+  z-index: 0;
+}
+
+/* Floating label */
+.floating-label-group {
+  position: relative;
+}
+.floating-label-group .floating-label {
+  position: absolute;
+  left: 2.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: hsl(var(--muted-foreground));
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+  background: transparent;
+  padding: 0 4px;
+}
+.floating-label-group input:focus ~ .floating-label,
+.floating-label-group input:not(:placeholder-shown) ~ .floating-label {
+  top: 0;
+  left: 0.75rem;
+  font-size: 0.7rem;
+  color: hsl(var(--primary));
+  background: hsl(var(--card));
+  transform: translateY(-50%);
+}
