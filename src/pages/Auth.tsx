@@ -82,7 +82,18 @@ const Auth = () => {
   };
 
   return (
-    <div className={`min-h-screen flex flex-col items-center justify-center px-4 transition-all duration-700 ${exiting ? "scale-105 opacity-0 blur-sm" : ""}`}>
+    <div className={`relative min-h-screen flex flex-col items-center justify-center px-4 overflow-hidden transition-all duration-700 ${exiting ? "scale-105 opacity-0 blur-sm" : ""}`}>
+      {/* Animated gradient background */}
+      <div className="auth-bg-gradient absolute inset-0 -z-10" aria-hidden="true" />
+      {/* Floating orbs */}
+      <div className="auth-orb auth-orb-1 -z-10" aria-hidden="true" />
+      <div className="auth-orb auth-orb-2 -z-10" aria-hidden="true" />
+      <div className="auth-orb auth-orb-3 -z-10" aria-hidden="true" />
+      {/* Subtle grid overlay */}
+      <div className="auth-grid absolute inset-0 -z-10 opacity-[0.07]" aria-hidden="true" />
+      {/* Vignette */}
+      <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_center,transparent_0%,hsl(var(--background))_85%)]" aria-hidden="true" />
+
       <div className={`w-full max-w-sm space-y-6 animate-in fade-in-0 slide-in-from-bottom-4 duration-500 transition-all duration-700 ${exiting ? "translate-y-[-30px]" : ""} ${shake ? "animate-shake" : ""}`}>
         {/* Logo */}
         <div className="flex flex-col items-center gap-4 mb-2">
