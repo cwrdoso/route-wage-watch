@@ -271,20 +271,35 @@ export function GoalProgress({ routes }: Props) {
         </div>
       </div>
 
-      {/* Cross-fade entre Mês e Quinzena */}
-      <div className="relative">
-        <div key={isMonth ? "month" : "fortnight"} className="animate-fade-in-soft">
-          <Card className="glass-card premium-sheen ambient-glow border-primary/20 overflow-hidden relative">
-            <div
-              className="absolute inset-0 opacity-50 pointer-events-none"
-              style={{
-                background: isMonth
-                  ? "radial-gradient(circle at 85% 15%, hsl(var(--primary) / 0.18), transparent 60%)"
-                  : "radial-gradient(circle at 15% 15%, hsl(var(--primary) / 0.18), transparent 60%)",
-              }}
-            />
-            <CardFace data={isMonth ? monthData : fortData} active={true} />
-          </Card>
+      {/* Flip 3D Mês ↔ Quinzena */}
+      <div className="flip-scene">
+        <div className={`flip-inner ${isMonth ? "" : "is-flipped"}`}>
+          {/* Frente: Mês */}
+          <div className="flip-face">
+            <Card className="glass-card border-primary/20 overflow-hidden relative">
+              <div
+                className="absolute inset-0 opacity-50 pointer-events-none"
+                style={{
+                  background:
+                    "radial-gradient(circle at 85% 15%, hsl(var(--primary) / 0.18), transparent 60%)",
+                }}
+              />
+              <CardFace data={monthData} active={isMonth} />
+            </Card>
+          </div>
+          {/* Verso: Quinzena */}
+          <div className="flip-face flip-face-back">
+            <Card className="glass-card border-primary/20 overflow-hidden relative">
+              <div
+                className="absolute inset-0 opacity-50 pointer-events-none"
+                style={{
+                  background:
+                    "radial-gradient(circle at 15% 15%, hsl(var(--primary) / 0.18), transparent 60%)",
+                }}
+              />
+              <CardFace data={fortData} active={!isMonth} />
+            </Card>
+          </div>
         </div>
       </div>
     </div>
