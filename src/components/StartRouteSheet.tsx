@@ -16,10 +16,17 @@ interface Props {
 }
 
 export function StartRouteSheet({ open, onOpenChange, onStarted }: Props) {
-  const settings = getSettings();
   const [kmStart, setKmStart] = useState("");
   const [hasHelper, setHasHelper] = useState(true);
-  const [helperCost, setHelperCost] = useState(String(settings.helperCost ?? 50));
+  const [helperCost, setHelperCost] = useState("");
+
+  // Re-read settings every time the sheet opens so changes in Configurações reflect here
+  useEffect(() => {
+    if (open) {
+      const s = getSettings();
+      setHelperCost(String(s.helperCost ?? 0));
+    }
+  }, [open]);
 
   const valid = kmStart && Number(kmStart) > 0;
 
