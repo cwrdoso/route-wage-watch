@@ -74,7 +74,7 @@ export function SummaryCards({ routes: allRoutes }: SummaryCardsProps) {
   ];
 
   return (
-    <div className="grid grid-cols-2 gap-3">
+    <div data-tour="summary-cards" className="grid grid-cols-2 gap-3">
       {cards.map((c, i) => (
         <AnimatedCard key={c.title} card={c} index={i} />
       ))}
