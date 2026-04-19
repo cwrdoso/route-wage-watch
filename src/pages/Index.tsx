@@ -85,6 +85,26 @@ const TOUR_STEPS: TourStep[] = [
       "Se o preço da gasolina mudar ou você contratar um ajudante, atualize aqui. Isso garante que seu lucro real seja sempre preciso.",
     placement: "top",
   },
+  {
+    target: "settings-daily",
+    switchTab: "settings",
+    title: "Defina sua Diária Padrão",
+    description:
+      "Digite quanto você ganha por dia (ex.: R$ 350). Este valor entra automaticamente em cada rota — você ainda pode alterar por rota se precisar.",
+    requireInput: "settings-daily",
+    placement: "bottom",
+    padding: 6,
+  },
+  {
+    target: "settings-fuel",
+    switchTab: "settings",
+    title: "Preço da Gasolina",
+    description:
+      "Informe o preço médio do litro (ex.: R$ 6,00). É usado para calcular o custo de combustível e seu lucro real de cada rota.",
+    requireInput: "settings-fuel",
+    placement: "bottom",
+    padding: 6,
+  },
 ];
 
 type Tab = "home" | "routes" | "costs" | "settings";

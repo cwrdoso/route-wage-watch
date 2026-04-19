@@ -17,6 +17,9 @@ export interface TourStep {
   placement?: "top" | "bottom";
   /** Extra padding around the spotlight rect, px */
   padding?: number;
+  /** If set, user must fill the input matching this data-tour selector to advance.
+   *  A "Pular esta etapa" link is also shown. */
+  requireInput?: string;
 }
 
 interface Rect {
@@ -42,6 +45,7 @@ export function GuidedTour({ open, steps, onTabChange, onFinish, onSkip }: Props
   const [rect, setRect] = useState<Rect | null>(null);
   const [visible, setVisible] = useState(false);
   const [completed, setCompleted] = useState(false);
+  const [inputValid, setInputValid] = useState(false);
   const lastTabRef = useRef<TourTab | undefined>(undefined);
 
   const step = steps[stepIndex];
@@ -88,6 +92,49 @@ export function GuidedTour({ open, steps, onTabChange, onFinish, onSkip }: Props
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, completed, stepIndex]);
 
+  // Watch required input value
+  useEffect(() => {
+    if (!open || completed || !step?.requireInput) {
+      setInputValid(true);
+      return;
+    }
+    setInputValid(false);
+    let raf = 0;
+    const find = () =>
+      document.querySelector<HTMLInputElement>(`[data-tour="${step.requireInput}"]`);
+
+    const check = () => {
+      const el = find();
+      if (el) {
+        const v = Number(el.value);
+        setInputValid(!Number.isNaN(v) && v > 0);
+      }
+    };
+
+    // Wait until input is mounted, then attach listener
+    const attach = () => {
+      const el = find();
+      if (!el) {
+        raf = window.requestAnimationFrame(attach);
+        return;
+      }
+      check();
+      el.addEventListener("input", check);
+      el.addEventListener("change", check);
+    };
+    attach();
+
+    return () => {
+      cancelAnimationFrame(raf);
+      const el = find();
+      if (el) {
+        el.removeEventListener("input", check);
+        el.removeEventListener("change", check);
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stepIndex, open, completed]);
+
   function measureTarget() {
     if (!step) return;
     const el = document.querySelector<HTMLElement>(`[data-tour="${step.target}"]`);
@@ -125,6 +172,12 @@ export function GuidedTour({ open, steps, onTabChange, onFinish, onSkip }: Props
   function handleNext() {
     vibrate(20);
     const isLast = stepIndex === steps.length - 1;
+    // If current step required input, ask host to persist it
+    if (step?.requireInput) {
+      window.dispatchEvent(
+        new CustomEvent("tour:save-essentials", { detail: { field: step.requireInput } })
+      );
+    }
     setVisible(false);
     const advance = () => {
       if (isLast) {
@@ -396,6 +449,7 @@ export function GuidedTour({ open, steps, onTabChange, onFinish, onSkip }: Props
           </p>
           <Button
             onClick={handleNext}
+            disabled={!!step.requireInput && !inputValid}
             className="w-full h-10 mt-1 font-semibold"
             size="sm"
           >
@@ -404,10 +458,21 @@ export function GuidedTour({ open, steps, onTabChange, onFinish, onSkip }: Props
                 <Check className="h-4 w-4 mr-1" />
                 Concluir
               </>
+            ) : step.requireInput ? (
+              <>Salvar e continuar →</>
             ) : (
               <>Entendi →</>
             )}
           </Button>
+          {step.requireInput && (
+            <button
+              type="button"
+              onClick={handleNext}
+              className="w-full text-[12px] text-muted-foreground hover:text-foreground transition-colors py-1"
+            >
+              Pular esta etapa
+            </button>
+          )}
         </div>
       </div>
     </div>,

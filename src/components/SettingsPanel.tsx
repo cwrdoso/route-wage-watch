@@ -108,6 +108,29 @@ export function SettingsPanel({ initialOpen, onRestartTour }: Props = {}) {
     }
   }, [initialOpen]);
 
+  // Refs to read latest values inside the global event listener
+  const dailyValRef = useRef(defaultDailyValue);
+  const fuelValRef = useRef(defaultPricePerLiter);
+  useEffect(() => { dailyValRef.current = defaultDailyValue; }, [defaultDailyValue]);
+  useEffect(() => { fuelValRef.current = defaultPricePerLiter; }, [defaultPricePerLiter]);
+
+  // Listen for the guided tour asking us to silently persist essentials
+  useEffect(() => {
+    const handler = () => {
+      const cur = getSettings();
+      saveSettings({
+        ...cur,
+        defaultDailyValue: Number(dailyValRef.current) || cur.defaultDailyValue || 0,
+        defaultPricePerLiter: Number(fuelValRef.current) || cur.defaultPricePerLiter || 0,
+      });
+      const done =
+        Number(dailyValRef.current) > 0 && Number(fuelValRef.current) > 0;
+      setEssentialsDone((prev) => prev || done);
+    };
+    window.addEventListener("tour:save-essentials", handler);
+    return () => window.removeEventListener("tour:save-essentials", handler);
+  }, []);
+
   const toggleSection = (id: SectionKey) => {
     setOpenSection((cur) => (cur === id ? null : id));
   };
@@ -191,6 +214,7 @@ export function SettingsPanel({ initialOpen, onRestartTour }: Props = {}) {
               <Label className="text-xs text-muted-foreground">Diária Padrão (R$)</Label>
               <Input
                 ref={dailyRef}
+                data-tour="settings-daily"
                 type="number"
                 step="0.01"
                 inputMode="decimal"
@@ -204,6 +228,7 @@ export function SettingsPanel({ initialOpen, onRestartTour }: Props = {}) {
             <div>
               <Label className="text-xs text-muted-foreground">Preço da Gasolina (R$/litro)</Label>
               <Input
+                data-tour="settings-fuel"
                 type="number"
                 step="0.01"
                 inputMode="decimal"
