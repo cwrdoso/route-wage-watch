@@ -45,6 +45,7 @@ export function GuidedTour({ open, steps, onTabChange, onFinish, onSkip }: Props
   const [rect, setRect] = useState<Rect | null>(null);
   const [visible, setVisible] = useState(false);
   const [completed, setCompleted] = useState(false);
+  const [inputValid, setInputValid] = useState(false);
   const lastTabRef = useRef<TourTab | undefined>(undefined);
 
   const step = steps[stepIndex];
