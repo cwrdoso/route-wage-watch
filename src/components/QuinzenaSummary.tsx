@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CalendarDays, ChevronLeft, ChevronRight, CalendarRange, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -9,13 +9,11 @@ import { ptBR } from "date-fns/locale";
 import type { RouteEntry } from "@/lib/storage";
 import { onlyRoutes } from "@/lib/storage";
 import type { DateRange } from "react-day-picker";
+import { MoneyValue } from "@/components/MoneyValue";
+import { vibrate } from "@/lib/haptics";
 
 interface Props {
   routes: RouteEntry[];
-}
-
-function formatCurrency(v: number) {
-  return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
 function getCurrentQuinzena(): { month: number; year: number; half: 1 | 2 } {
@@ -86,19 +84,25 @@ function DataGrid({ data }: { data: { revenue: number; profit: number; expenses:
     <div className="grid grid-cols-2 gap-3">
       <div className="rounded-lg bg-secondary/50 p-3">
         <span className="text-[11px] uppercase tracking-wider text-muted-foreground">Faturamento</span>
-        <p className="text-sm font-bold text-info">{formatCurrency(data.revenue)}</p>
+        <div className="text-base text-info mt-1">
+          <MoneyValue value={data.revenue} />
+        </div>
       </div>
       <div className="rounded-lg bg-secondary/50 p-3">
         <span className="text-[11px] uppercase tracking-wider text-muted-foreground">Lucro</span>
-        <p className={`text-sm font-bold ${data.profit >= 0 ? "text-success" : "text-destructive"}`}>{formatCurrency(data.profit)}</p>
+        <div className={`text-base mt-1 ${data.profit >= 0 ? "text-success" : "text-destructive"}`}>
+          <MoneyValue value={data.profit} />
+        </div>
       </div>
       <div className="rounded-lg bg-secondary/50 p-3">
         <span className="text-[11px] uppercase tracking-wider text-muted-foreground">Gastos Totais</span>
-        <p className="text-sm font-bold text-warning">{formatCurrency(data.expenses)}</p>
+        <div className="text-base text-warning mt-1">
+          <MoneyValue value={data.expenses} />
+        </div>
       </div>
       <div className="rounded-lg bg-secondary/50 p-3">
         <span className="text-[11px] uppercase tracking-wider text-muted-foreground">Dias / Horas</span>
-        <p className="text-sm font-bold">{data.days.size}d • {data.hours.toFixed(1)}h</p>
+        <p className="text-sm font-medium mt-1 tabular-nums">{data.days.size}d • {data.hours.toFixed(1)}h</p>
       </div>
     </div>
   );
@@ -123,6 +127,37 @@ export function QuinzenaSummary({ routes: allRoutes }: Props) {
     ? `${format(dateRange!.from!, "dd/MM/yy")} — ${format(dateRange!.to!, "dd/MM/yy")}`
     : quinzenaLabel(sel.year, sel.month, sel.half);
 
+  const goPrev = () => {
+    if (usingCustom) setDateRange(undefined);
+    else setSel((s) => shiftQuinzena(s.year, s.month, s.half, -1));
+    vibrate(15);
+  };
+  const goNext = () => {
+    if (usingCustom) setDateRange(undefined);
+    else setSel((s) => shiftQuinzena(s.year, s.month, s.half, 1));
+    vibrate(15);
+  };
+
+  // Swipe handling
+  const touchStartX = useRef<number | null>(null);
+  const touchStartY = useRef<number | null>(null);
+  const SWIPE_THRESHOLD = 50;
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
+  };
+  const onTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null || touchStartY.current === null) return;
+    const dx = e.changedTouches[0].clientX - touchStartX.current;
+    const dy = e.changedTouches[0].clientY - touchStartY.current;
+    touchStartX.current = null;
+    touchStartY.current = null;
+    if (Math.abs(dx) < SWIPE_THRESHOLD || Math.abs(dx) < Math.abs(dy)) return;
+    if (dx < 0) goNext();
+    else goPrev();
+  };
+
   return (
     <Card className="glass-card">
       <CardHeader className="pb-3">
@@ -131,16 +166,17 @@ export function QuinzenaSummary({ routes: allRoutes }: Props) {
           {usingCustom ? "Período Personalizado" : "Quinzena"}
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-3">
+      <CardContent
+        className="space-y-3 select-none touch-pan-y"
+        onTouchStart={onTouchStart}
+        onTouchEnd={onTouchEnd}
+      >
         <div className="flex items-center justify-between gap-2">
           <Button
             variant="ghost"
             size="icon"
             className="h-8 w-8 shrink-0"
-            onClick={() => {
-              if (usingCustom) setDateRange(undefined);
-              else setSel((s) => shiftQuinzena(s.year, s.month, s.half, -1));
-            }}
+            onClick={goPrev}
             aria-label="Anterior"
           >
             <ChevronLeft className="h-4 w-4" />
@@ -198,10 +234,7 @@ export function QuinzenaSummary({ routes: allRoutes }: Props) {
             variant="ghost"
             size="icon"
             className="h-8 w-8 shrink-0"
-            onClick={() => {
-              if (usingCustom) setDateRange(undefined);
-              else setSel((s) => shiftQuinzena(s.year, s.month, s.half, 1));
-            }}
+            onClick={goNext}
             aria-label="Próximo"
           >
             <ChevronRight className="h-4 w-4" />

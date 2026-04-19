@@ -3,29 +3,24 @@ import { TrendingUp, DollarSign, Clock, Calendar } from "lucide-react";
 import type { RouteEntry } from "@/lib/storage";
 import { onlyRoutes } from "@/lib/storage";
 import { useCountUp } from "@/hooks/useCountUp";
+import { MoneyValue } from "@/components/MoneyValue";
 
 interface SummaryCardsProps {
   routes: RouteEntry[];
 }
 
-function formatCurrency(value: number) {
-  return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-}
-
 interface CardData {
   title: string;
-  value: number;
+  value: number | null; // null => render em-dash (no data)
   icon: typeof DollarSign;
   accent: string;
   format: "currency" | "number" | "hours";
 }
 
 function AnimatedCard({ card, index }: { card: CardData; index: number }) {
-  const animated = useCountUp(card.value, 600);
-  let display: string;
-  if (card.format === "currency") display = formatCurrency(animated);
-  else if (card.format === "hours") display = `${animated.toFixed(1)}h`;
-  else display = String(Math.round(animated));
+  const safeValue = card.value ?? 0;
+  const animated = useCountUp(safeValue, 600);
+  const isEmpty = card.value === null;
 
   return (
     <Card
@@ -42,12 +37,21 @@ function AnimatedCard({ card, index }: { card: CardData; index: number }) {
             style={{ animationDelay: `${index * 80 + 120}ms` }}
           />
         </div>
-        <p
-          className={`text-[22px] font-semibold ${card.accent} tabular-nums leading-none mt-2 animate-number-reveal`}
+
+        <div
+          className={`text-[22px] ${card.accent} leading-none mt-2 animate-number-reveal`}
           style={{ animationDelay: `${index * 80 + 180}ms` }}
         >
-          {display}
-        </p>
+          {isEmpty ? (
+            <span className="font-medium tabular-nums opacity-70">—</span>
+          ) : card.format === "currency" ? (
+            <MoneyValue value={animated} />
+          ) : card.format === "hours" ? (
+            <span className="font-medium tabular-nums">{animated.toFixed(1)}h</span>
+          ) : (
+            <span className="font-medium tabular-nums">{Math.round(animated)}</span>
+          )}
+        </div>
       </CardContent>
     </Card>
   );
@@ -59,18 +63,17 @@ export function SummaryCards({ routes: allRoutes }: SummaryCardsProps) {
   const totalProfit = routes.reduce((sum, r) => sum + r.netProfit, 0);
   const totalHours = routes.reduce((s, r) => s + (r.hoursWorked || 0), 0);
   const uniqueDays = new Set(routes.map((r) => r.date)).size;
-  const revenuePerHour = totalHours > 0 ? totalRevenue / totalHours : 0;
-  const profitPerHour = totalHours > 0 ? totalProfit / totalHours : 0;
+  const hasHours = totalHours > 0;
+  const revenuePerHour = hasHours ? totalRevenue / totalHours : null;
+  const profitPerHour = hasHours ? totalProfit / totalHours : null;
 
-  // Paleta harmônica: foreground neutro para totais e contexto;
-  // success/destructive só para sinalizar lucro (positivo/negativo).
   const cards: CardData[] = [
     { title: "Faturamento Total", value: totalRevenue, icon: DollarSign, accent: "text-foreground", format: "currency" },
     { title: "Lucro Total", value: totalProfit, icon: TrendingUp, accent: totalProfit >= 0 ? "text-success" : "text-destructive", format: "currency" },
     { title: "Dias Trabalhados", value: uniqueDays, icon: Calendar, accent: "text-foreground", format: "number" },
     { title: "Horas Trabalhadas", value: totalHours, icon: Clock, accent: "text-foreground", format: "hours" },
     { title: "Faturamento/Hora", value: revenuePerHour, icon: DollarSign, accent: "text-foreground/80", format: "currency" },
-    { title: "Lucro/Hora", value: profitPerHour, icon: TrendingUp, accent: profitPerHour >= 0 ? "text-success" : "text-destructive", format: "currency" },
+    { title: "Lucro/Hora", value: profitPerHour, icon: TrendingUp, accent: (profitPerHour ?? 0) >= 0 ? "text-success" : "text-destructive", format: "currency" },
   ];
 
   return (
