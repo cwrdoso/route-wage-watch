@@ -69,12 +69,12 @@ export function deleteRoute(id: string) {
 export function getSettings(): Settings {
   const data = localStorage.getItem(SETTINGS_KEY);
   if (!data) return {
-    avgConsumption: 10,
-    reservePerKm: 0.10,
-    defaultDailyValue: 350,
-    helperCost: 50,
-    defaultPricePerLiter: 6.0,
-    fixedFee: 50,
+    avgConsumption: 0,
+    reservePerKm: 0,
+    defaultDailyValue: 0,
+    helperCost: 0,
+    defaultPricePerLiter: 0,
+    fixedFee: 0,
     monthlyGoal: 0,
     fortnightGoal: 0,
     hourlyGoal: 0,
@@ -82,11 +82,15 @@ export function getSettings(): Settings {
   };
   const parsed = JSON.parse(data);
   return {
+    avgConsumption: 0,
+    reservePerKm: 0,
+    defaultDailyValue: 0,
+    helperCost: 0,
+    defaultPricePerLiter: 0,
+    fixedFee: 0,
     monthlyGoal: 0,
     fortnightGoal: 0,
     hourlyGoal: 0,
-    defaultPricePerLiter: 6.0,
-    fixedFee: 50,
     routeMode: "dynamic",
     ...parsed,
   };
