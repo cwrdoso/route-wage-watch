@@ -4,6 +4,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Check, Pencil, AlertCircle } from "lucide-react";
 import {
   calculateEntry,
@@ -14,6 +15,7 @@ import {
   type ActiveRoute,
   type RouteEntry,
 } from "@/lib/storage";
+import { PLATFORMS } from "@/lib/platforms";
 import { vibrate } from "@/lib/haptics";
 import { toast } from "sonner";
 import { format } from "date-fns";
@@ -50,6 +52,7 @@ export function FinishRouteSheet({ open, onOpenChange, onFinished, onOpenSetting
   const [hasDefaultPrice, setHasDefaultPrice] = useState(true);
   const [saving, setSaving] = useState<"idle" | "saving" | "done">("idle");
   const [now, setNow] = useState(() => Date.now());
+  const [platform, setPlatform] = useState<string>("none");
 
   useEffect(() => {
     if (open) {
@@ -62,6 +65,7 @@ export function FinishRouteSheet({ open, onOpenChange, onFinished, onOpenSetting
       setHasDefaultPrice(defaultPrice > 0);
       setDailyValue(Number(settings.defaultDailyValue ?? 350));
       setAvgConsumption(settings.avgConsumption || 10);
+      setPlatform("none");
       setSaving("idle");
       setNow(Date.now());
     }
@@ -114,6 +118,7 @@ export function FinishRouteSheet({ open, onOpenChange, onFinished, onOpenSetting
           timeStart,
           timeEnd,
           active.helperCost,
+          platform,
         );
         saveRoute(entry);
         setActiveRoute(null);
@@ -213,6 +218,31 @@ export function FinishRouteSheet({ open, onOpenChange, onFinished, onOpenSetting
               )}
             </div>
 
+            {/* Plataforma — opcional */}
+            <div>
+              <Label className="text-xs text-muted-foreground">
+                Plataforma <span className="text-muted-foreground/60">— opcional</span>
+              </Label>
+              <Select value={platform} onValueChange={setPlatform}>
+                <SelectTrigger className="mt-1">
+                  <SelectValue placeholder="Sem plataforma" />
+                </SelectTrigger>
+                <SelectContent>
+                  {PLATFORMS.map((p) => (
+                    <SelectItem key={p.id} value={p.id}>
+                      <span className="inline-flex items-center gap-2">
+                        <span
+                          className="h-2 w-2 rounded-full"
+                          style={{ backgroundColor: p.dot }}
+                          aria-hidden="true"
+                        />
+                        {p.label}
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             {!hasDefaultPrice && (
               <div className="rounded-lg border border-warning/40 bg-warning/10 p-3 text-xs text-foreground">
                 Defina o <span className="font-semibold">Preço Padrão da Gasolina</span> em Configurações para calcular o custo automaticamente.

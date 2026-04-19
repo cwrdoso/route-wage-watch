@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import type { RouteEntry } from "@/lib/storage";
 import { deleteRoute } from "@/lib/storage";
+import { getPlatform } from "@/lib/platforms";
 import { format, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { vibrate } from "@/lib/haptics";
@@ -262,9 +263,26 @@ export function RouteHistory({ routes, onDelete }: RouteHistoryProps) {
               }`}
             >
               <div className="space-y-0.5 min-w-0">
-                <p className="text-sm font-medium">
-                  {format(parseISO(r.date), "dd MMM yyyy", { locale: ptBR })}
-                </p>
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <p className="text-sm font-medium">
+                    {format(parseISO(r.date), "dd MMM yyyy", { locale: ptBR })}
+                  </p>
+                  {r.platform && r.platform !== "none" && (() => {
+                    const p = getPlatform(r.platform);
+                    return (
+                      <span
+                        className={`inline-flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded-full ${p.className}`}
+                      >
+                        <span
+                          className="h-1.5 w-1.5 rounded-full"
+                          style={{ backgroundColor: p.dot }}
+                          aria-hidden="true"
+                        />
+                        {p.label}
+                      </span>
+                    );
+                  })()}
+                </div>
                 <p className="text-xs text-muted-foreground truncate">
                   {r.kmDriven || (r.kmEnd - r.kmStart)} km • {(r.hoursWorked || 0).toFixed(1)}h • {formatCurrency(r.dailyValue)}
                 </p>

@@ -24,7 +24,11 @@ import { StartRouteSheet } from "@/components/StartRouteSheet";
 import { FinishRouteSheet } from "@/components/FinishRouteSheet";
 import { GuidedTour, type TourStep } from "@/components/GuidedTour";
 import { EmptyDashboard } from "@/components/EmptyDashboard";
-import { Home, Route, DollarSign, Settings, LogOut, Play, Square } from "lucide-react";
+import { DailyBarChart } from "@/components/DailyBarChart";
+import { WeekComparison } from "@/components/WeekComparison";
+import { PlatformBreakdown } from "@/components/PlatformBreakdown";
+import { ExportSheet } from "@/components/ExportSheet";
+import { Home, Route, DollarSign, Settings, LogOut, Play, Square, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
@@ -105,6 +109,7 @@ const Index = () => {
   const [activeRefreshKey, setActiveRefreshKey] = useState(0);
   const [settingsInitialOpen, setSettingsInitialOpen] = useState<"essencial" | undefined>(undefined);
   const [settingsKey, setSettingsKey] = useState(0);
+  const [exportSheetOpen, setExportSheetOpen] = useState(false);
 
   const [tourOpen, setTourOpen] = useState(false);
 
@@ -221,6 +226,8 @@ const Index = () => {
             {hasAnyRoute ? (
               <>
                 <SummaryCards routes={routes} />
+                <DailyBarChart routes={routes} />
+                <WeekComparison routes={routes} />
                 <GoalProgress routes={routes} />
                 <QuinzenaSummary routes={routes} />
               </>
@@ -280,7 +287,24 @@ const Index = () => {
         )}
         {tab === "costs" && (
           <>
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold flex items-center gap-2">
+                <DollarSign className="h-5 w-5 text-primary" />
+                Extrato
+              </h2>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setExportSheetOpen(true)}
+                className="gap-1.5 h-9"
+                aria-label="Exportar"
+              >
+                <Share2 className="h-4 w-4" />
+                Exportar
+              </Button>
+            </div>
             <OperationalCosts routes={routes} extraExpenses={extraExpenses} />
+            <PlatformBreakdown routes={routes} />
             <ExtraExpenseForm onSave={refresh} />
             <ExtraExpenseList expenses={extraExpenses} onDelete={refresh} />
           </>
@@ -304,6 +328,13 @@ const Index = () => {
           setSettingsKey((k) => k + 1);
           handleTabChange("settings");
         }}
+      />
+
+      <ExportSheet
+        open={exportSheetOpen}
+        onOpenChange={setExportSheetOpen}
+        routes={routes}
+        extraExpenses={extraExpenses}
       />
 
       <nav className="fixed bottom-4 left-1/2 -translate-x-1/2 z-20">
