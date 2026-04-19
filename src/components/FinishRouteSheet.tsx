@@ -118,6 +118,7 @@ export function FinishRouteSheet({ open, onOpenChange, onFinished, onOpenSetting
           timeStart,
           timeEnd,
           active.helperCost,
+          platform,
         );
         saveRoute(entry);
         setActiveRoute(null);
