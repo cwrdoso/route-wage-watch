@@ -297,22 +297,34 @@ const Index = () => {
         onFinished={(entry) => handleRouteSaved(entry)}
       />
 
-      <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 z-20">
-        <div className="flex items-center gap-2 bg-card/90 backdrop-blur-xl border border-border/30 rounded-full px-3 py-2 shadow-2xl shadow-primary/10">
-          {tabs.map((t) => (
-            <button
-              key={t.key}
-              data-tour={`tab-${t.key}`}
-              onClick={() => handleTabChange(t.key)}
-              className={`relative flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300 ${
-                tab === t.key
-                  ? "bg-primary text-primary-foreground shadow-lg shadow-primary/40 scale-105"
-                  : "text-muted-foreground hover:text-foreground"
-              } ${bouncingTab === t.key ? "animate-bounce-tap" : ""}`}
-            >
-              <t.icon className="h-5 w-5" strokeWidth={tab === t.key ? 2.5 : 1.5} />
-            </button>
-          ))}
+      <nav className="fixed bottom-4 left-1/2 -translate-x-1/2 z-20">
+        <div className="flex items-end gap-1 bg-card/90 backdrop-blur-xl border border-border/30 rounded-3xl px-2 py-2 shadow-2xl shadow-primary/10">
+          {tabs.map((t) => {
+            const active = tab === t.key;
+            return (
+              <button
+                key={t.key}
+                data-tour={`tab-${t.key}`}
+                onClick={() => handleTabChange(t.key)}
+                aria-label={t.label}
+                aria-current={active ? "page" : undefined}
+                className={`relative flex flex-col items-center justify-center min-w-[60px] px-2 py-1.5 rounded-2xl transition-all duration-300 ${
+                  active
+                    ? "bg-primary text-primary-foreground shadow-lg shadow-primary/40"
+                    : "text-muted-foreground hover:text-foreground"
+                } ${bouncingTab === t.key ? "animate-bounce-tap" : ""}`}
+              >
+                <t.icon className="h-5 w-5" strokeWidth={active ? 2.5 : 1.75} />
+                <span
+                  className={`text-[10px] mt-0.5 leading-none whitespace-nowrap ${
+                    active ? "font-semibold" : "font-medium"
+                  }`}
+                >
+                  {t.label}
+                </span>
+              </button>
+            );
+          })}
         </div>
       </nav>
 
