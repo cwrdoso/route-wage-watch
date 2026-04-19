@@ -271,31 +271,19 @@ export function GoalProgress({ routes }: Props) {
         </div>
       </div>
 
-      {/* Cena 3D */}
-      <div className="scene">
-        <div className={`card-flip ${!isMonth ? "flipped" : ""}`}>
-          {/* Frente: Mês */}
-          <Card className="glass-card premium-sheen ambient-glow border-primary/20 overflow-hidden relative face">
+      {/* Cross-fade entre Mês e Quinzena */}
+      <div className="relative">
+        <div key={isMonth ? "month" : "fortnight"} className="animate-fade-in-soft">
+          <Card className="glass-card premium-sheen ambient-glow border-primary/20 overflow-hidden relative">
             <div
               className="absolute inset-0 opacity-50 pointer-events-none"
               style={{
-                background:
-                  "radial-gradient(circle at 85% 15%, hsl(var(--primary) / 0.18), transparent 60%)",
+                background: isMonth
+                  ? "radial-gradient(circle at 85% 15%, hsl(var(--primary) / 0.18), transparent 60%)"
+                  : "radial-gradient(circle at 15% 15%, hsl(var(--primary) / 0.18), transparent 60%)",
               }}
             />
-            <CardFace data={monthData} active={isMonth} />
-          </Card>
-
-          {/* Verso: Quinzena */}
-          <Card className="glass-card premium-sheen ambient-glow border-primary/20 overflow-hidden face face-back">
-            <div
-              className="absolute inset-0 opacity-50 pointer-events-none"
-              style={{
-                background:
-                  "radial-gradient(circle at 15% 15%, hsl(var(--primary) / 0.18), transparent 60%)",
-              }}
-            />
-            <CardFace data={fortData} active={!isMonth} />
+            <CardFace data={isMonth ? monthData : fortData} active={true} />
           </Card>
         </div>
       </div>
