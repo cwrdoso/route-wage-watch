@@ -305,7 +305,15 @@ const Index = () => {
           </>
         )}
         {tab === "settings" && (
-          <SettingsPanel key={settingsKey} initialOpen={settingsInitialOpen} />
+          <SettingsPanel
+            key={settingsKey}
+            initialOpen={settingsInitialOpen}
+            onRestartTour={() => {
+              localStorage.removeItem(TOUR_FLAG_KEY);
+              handleTabChange("home");
+              setTimeout(() => setTourOpen(true), 350);
+            }}
+          />
         )}
       </main>
 

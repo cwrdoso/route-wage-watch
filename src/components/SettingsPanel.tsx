@@ -13,6 +13,7 @@ import {
   ChevronDown,
   Lock,
   Info,
+  HelpCircle,
 } from "lucide-react";
 import { getSettings, saveSettings } from "@/lib/storage";
 import { toast } from "sonner";
@@ -25,6 +26,8 @@ type SectionKey = "essencial" | "veiculo" | "financeiro" | "metas";
 interface Props {
   /** Optional: open this section on mount (used when navigating from elsewhere) */
   initialOpen?: SectionKey;
+  /** Optional callback to restart the guided tour */
+  onRestartTour?: () => void;
 }
 
 interface SectionProps {
@@ -73,7 +76,7 @@ function Section({ id, open, onToggle, icon: Icon, label, badge, children }: Sec
   );
 }
 
-export function SettingsPanel({ initialOpen }: Props = {}) {
+export function SettingsPanel({ initialOpen, onRestartTour }: Props = {}) {
   const settings = getSettings();
   const [avgConsumption, setAvgConsumption] = useState(String(settings.avgConsumption));
   const [reservePerKm, setReservePerKm] = useState(String(settings.reservePerKm));
@@ -324,6 +327,19 @@ export function SettingsPanel({ initialOpen }: Props = {}) {
             <Save className="h-4 w-4" />
             Salvar Configurações
           </Button>
+
+          {onRestartTour && (
+            <div className="pt-2 flex justify-center">
+              <button
+                type="button"
+                onClick={onRestartTour}
+                className="inline-flex items-center gap-1.5 text-[12px] text-muted-foreground hover:text-foreground transition-colors py-1.5 px-2 rounded-md"
+              >
+                <HelpCircle className="h-3.5 w-3.5" />
+                Refazer tutorial
+              </button>
+            </div>
+          )}
         </CardContent>
       </Card>
     </TooltipProvider>
