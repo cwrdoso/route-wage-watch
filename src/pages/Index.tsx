@@ -23,6 +23,7 @@ import { ActiveRouteBanner } from "@/components/ActiveRouteBanner";
 import { StartRouteSheet } from "@/components/StartRouteSheet";
 import { FinishRouteSheet } from "@/components/FinishRouteSheet";
 import { GuidedTour, type TourStep } from "@/components/GuidedTour";
+import { EmptyDashboard } from "@/components/EmptyDashboard";
 import { Home, Route, DollarSign, Settings, LogOut, Play, Square } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -164,14 +165,24 @@ const Index = () => {
   const direction = currentIndex >= prevTabIndex ? "right" : "left";
   const tabAnimation = direction === "right" ? "animate-slide-in-right" : "animate-slide-in-left";
 
-  const tabs: { key: Tab; icon: typeof Home }[] = [
-    { key: "home", icon: Home },
-    { key: "routes", icon: Route },
-    { key: "costs", icon: DollarSign },
-    { key: "settings", icon: Settings },
+  const tabs: { key: Tab; icon: typeof Home; label: string }[] = [
+    { key: "home", icon: Home, label: "Início" },
+    { key: "routes", icon: Route, label: "Rotas" },
+    { key: "costs", icon: DollarSign, label: "Extrato" },
+    { key: "settings", icon: Settings, label: "Config" },
   ];
 
   const hasActiveRoute = !!localStorage.getItem("driver_active_route");
+  const hasAnyRoute = routes.some((r) => (r.type ?? "route") === "route");
+
+  const goToStartRoute = () => {
+    handleTabChange("routes");
+    // open the start sheet only when not in a manual flow + no active route
+    setTimeout(() => {
+      const active = !!localStorage.getItem("driver_active_route");
+      if (!active && routeMode === "dynamic") setStartSheetOpen(true);
+    }, 250);
+  };
 
   return (
     <div className="min-h-screen pb-20">
@@ -205,9 +216,15 @@ const Index = () => {
       <main key={tab} className={`max-w-lg mx-auto px-4 mt-6 space-y-6 md:space-y-8 ${tabAnimation}`}>
         {tab === "home" && (
           <>
-            <SummaryCards routes={routes} />
-            <GoalProgress routes={routes} />
-            <QuinzenaSummary routes={routes} />
+            {hasAnyRoute ? (
+              <>
+                <SummaryCards routes={routes} />
+                <GoalProgress routes={routes} />
+                <QuinzenaSummary routes={routes} />
+              </>
+            ) : (
+              <EmptyDashboard onStart={goToStartRoute} />
+            )}
           </>
         )}
         {tab === "routes" && (
