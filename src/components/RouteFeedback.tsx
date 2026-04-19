@@ -19,6 +19,42 @@ function fmt(v: number) {
   return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
+interface BadgeData {
+  label: string;
+  classes: string;
+  Icon: typeof TrendingUp;
+}
+
+function ProfitHighlight({
+  profit,
+  hours,
+  perHour,
+  badge,
+}: {
+  profit: number;
+  hours: number;
+  perHour: number;
+  badge: BadgeData;
+}) {
+  const animated = useCountUp(profit, 800);
+  return (
+    <div className="text-center py-2">
+      <p className="text-[11px] uppercase tracking-wider text-muted-foreground mb-1">Lucro da rota</p>
+      <p className={`text-[22px] font-bold tabular-nums ${profit >= 0 ? "text-success" : "text-destructive"}`}>
+        {fmt(animated)}
+      </p>
+      <div className="flex items-center justify-center gap-3 text-xs text-muted-foreground mt-1">
+        <span className="flex items-center gap-1"><Clock className="h-3 w-3" />{hours.toFixed(1)}h</span>
+        <span>·</span>
+        <span className="flex items-center gap-1"><TrendingUp className="h-3 w-3" />{fmt(perHour)}/h</span>
+      </div>
+      <span className={`inline-flex items-center gap-1 mt-2 text-[11px] font-medium px-2.5 py-1 rounded-full ${badge.classes}`}>
+        {badge.label}
+      </span>
+    </div>
+  );
+}
+
 export function RouteFeedback({ route, allRoutes, onClose }: Props) {
   const settings = getSettings();
   const hours = route.hoursWorked || 0;
