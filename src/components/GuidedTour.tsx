@@ -79,23 +79,41 @@ export function GuidedTour({ open, steps, onTabChange, onFinish, onSkip }: Props
         new CustomEvent("tour:open-section", { detail: { section: step.openSection } })
       );
     }
-    // Find target after a short delay so tab switch / animation can settle
+    // Find target after a delay so tab switch / animation can settle.
+    // Use a longer delay when switching tab or expanding a section so card
+    // entrance animations (stagger-in / accordion) finish before measuring,
+    // otherwise the spotlight rect oscillates ("tela tremendo").
     setVisible(false);
+    const baseDelay = step.switchTab && step.switchTab !== lastTabRef.current
+      ? 600
+      : step.openSection
+      ? 380
+      : 200;
     const t = window.setTimeout(() => {
       measureTarget();
+      // Re-measure once more after the entrance animation likely finished
+      window.setTimeout(() => measureTarget(), 250);
       setVisible(true);
-    }, step.openSection ? 320 : 120);
+    }, baseDelay);
     return () => window.clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stepIndex, open, completed]);
 
-  // Re-measure on resize / scroll
+  // Re-measure on resize / scroll — throttled with rAF to avoid jitter
   useLayoutEffect(() => {
     if (!open || completed) return;
-    const handler = () => measureTarget();
+    let raf = 0;
+    const handler = () => {
+      if (raf) return;
+      raf = window.requestAnimationFrame(() => {
+        raf = 0;
+        measureTarget();
+      });
+    };
     window.addEventListener("resize", handler);
     window.addEventListener("scroll", handler, true);
     return () => {
+      if (raf) cancelAnimationFrame(raf);
       window.removeEventListener("resize", handler);
       window.removeEventListener("scroll", handler, true);
     };
