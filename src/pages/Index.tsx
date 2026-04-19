@@ -109,6 +109,7 @@ const Index = () => {
   const [activeRefreshKey, setActiveRefreshKey] = useState(0);
   const [settingsInitialOpen, setSettingsInitialOpen] = useState<"essencial" | undefined>(undefined);
   const [settingsKey, setSettingsKey] = useState(0);
+  const [exportSheetOpen, setExportSheetOpen] = useState(false);
 
   const [tourOpen, setTourOpen] = useState(false);
 
