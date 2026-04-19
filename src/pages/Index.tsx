@@ -223,8 +223,6 @@ const Index = () => {
             {hasAnyRoute ? (
               <>
                 <SummaryCards routes={routes} />
-                <DailyBarChart routes={routes} />
-                <WeekComparison routes={routes} />
                 <GoalProgress routes={routes} />
                 <QuinzenaSummary routes={routes} />
               </>
