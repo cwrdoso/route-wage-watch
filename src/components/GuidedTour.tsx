@@ -201,7 +201,7 @@ export function GuidedTour({ open, steps, onTabChange, onFinish, onSkip }: Props
           <div className="space-y-2">
             <h2 className="text-3xl font-bold">Tudo pronto!</h2>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              O Racta está configurado para você. Registre sua primeira rota e veja
+              O Rotta está configurado para você. Registre sua primeira rota e veja
               seus ganhos em tempo real.
             </p>
           </div>
