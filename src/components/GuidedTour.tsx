@@ -73,12 +73,18 @@ export function GuidedTour({ open, steps, onTabChange, onFinish, onSkip }: Props
       // First step — record current implicit tab as "home"
       lastTabRef.current = "home";
     }
+    // If step asks to expand a settings section, dispatch the event
+    if (step.openSection) {
+      window.dispatchEvent(
+        new CustomEvent("tour:open-section", { detail: { section: step.openSection } })
+      );
+    }
     // Find target after a short delay so tab switch / animation can settle
     setVisible(false);
     const t = window.setTimeout(() => {
       measureTarget();
       setVisible(true);
-    }, 120);
+    }, step.openSection ? 320 : 120);
     return () => window.clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stepIndex, open, completed]);
