@@ -4,7 +4,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Check, Pencil } from "lucide-react";
+import { Check, Pencil, AlertCircle } from "lucide-react";
 import {
   calculateEntry,
   getActiveRoute,
@@ -22,6 +22,8 @@ interface Props {
   open: boolean;
   onOpenChange: (o: boolean) => void;
   onFinished: (entry: RouteEntry) => void;
+  /** Optional callback when user clicks "Alterar" on the daily value line */
+  onOpenSettings?: () => void;
 }
 
 function fmt(v: number) {
@@ -39,12 +41,11 @@ function elapsedLabel(ms: number) {
   return `${h}h ${pad(m)}min`;
 }
 
-export function FinishRouteSheet({ open, onOpenChange, onFinished }: Props) {
-  // Re-read settings + active route every time the sheet opens
+export function FinishRouteSheet({ open, onOpenChange, onFinished, onOpenSettings }: Props) {
   const [active, setActive] = useState<ActiveRoute | null>(null);
   const [kmEnd, setKmEnd] = useState("");
   const [pricePerLiter, setPricePerLiter] = useState("");
-  const [dailyValue, setDailyValue] = useState("");
+  const [dailyValue, setDailyValue] = useState(0); // read from settings, not user-editable here
   const [avgConsumption, setAvgConsumption] = useState(10);
   const [hasDefaultPrice, setHasDefaultPrice] = useState(true);
   const [saving, setSaving] = useState<"idle" | "saving" | "done">("idle");
@@ -59,14 +60,13 @@ export function FinishRouteSheet({ open, onOpenChange, onFinished }: Props) {
       const defaultPrice = Number(settings.defaultPricePerLiter ?? 0);
       setPricePerLiter(defaultPrice > 0 ? String(defaultPrice) : "");
       setHasDefaultPrice(defaultPrice > 0);
-      setDailyValue(String(settings.defaultDailyValue ?? 350));
+      setDailyValue(Number(settings.defaultDailyValue ?? 350));
       setAvgConsumption(settings.avgConsumption || 10);
       setSaving("idle");
       setNow(Date.now());
     }
   }, [open]);
 
-  // Keep "agora" / "tempo" live while sheet is open
   useEffect(() => {
     if (!open || !active) return;
     const id = setInterval(() => setNow(Date.now()), 1000);
@@ -79,16 +79,22 @@ export function FinishRouteSheet({ open, onOpenChange, onFinished }: Props) {
   );
   const elapsedMs = now - startDate.getTime();
 
-  const kmDriven = active ? Math.max(0, Number(kmEnd) - active.kmStart) : 0;
+  const kmEndNum = Number(kmEnd);
+  const kmStart = active?.kmStart ?? 0;
+  const kmDriven = active ? Math.max(0, kmEndNum - kmStart) : 0;
   const litersUsed = kmDriven / Math.max(0.1, avgConsumption);
   const fuelCost = litersUsed * (Number(pricePerLiter) || 0);
 
+  // Inline KM validation
+  const kmTouched = kmEnd.trim() !== "";
+  const kmInvalid = kmTouched && (Number.isNaN(kmEndNum) || kmEndNum <= kmStart);
+
   const valid =
     !!active &&
-    !!kmEnd &&
-    Number(kmEnd) > active.kmStart &&
+    kmTouched &&
+    !kmInvalid &&
     Number(pricePerLiter) > 0 &&
-    Number(dailyValue) > 0;
+    dailyValue > 0;
 
   const handleSave = () => {
     if (!valid || !active) return;
@@ -96,15 +102,14 @@ export function FinishRouteSheet({ open, onOpenChange, onFinished }: Props) {
     setTimeout(() => {
       try {
         const endNow = new Date();
-        // Use the END date so cross-midnight routes show on the correct day
         const dateStr = format(endNow, "yyyy-MM-dd");
         const timeStart = `${pad(startDate.getHours())}:${pad(startDate.getMinutes())}`;
         const timeEnd = `${pad(endNow.getHours())}:${pad(endNow.getMinutes())}`;
         const entry = calculateEntry(
           dateStr,
           active.kmStart,
-          Number(kmEnd),
-          Number(dailyValue),
+          kmEndNum,
+          dailyValue,
           Number(pricePerLiter),
           timeStart,
           timeEnd,
@@ -132,7 +137,7 @@ export function FinishRouteSheet({ open, onOpenChange, onFinished }: Props) {
         <SheetHeader>
           <SheetTitle className="text-xl">Finalizando rota</SheetTitle>
           <SheetDescription className="sr-only">
-            Informe o KM final, preço da gasolina e diária para encerrar a rota.
+            Informe o KM final para encerrar a rota. A diária é lida das Configurações.
           </SheetDescription>
         </SheetHeader>
 
@@ -161,21 +166,50 @@ export function FinishRouteSheet({ open, onOpenChange, onFinished }: Props) {
               </p>
             </div>
 
+            {/* Diária — leitura das configurações */}
+            <div className="rounded-lg bg-secondary/30 border border-border/40 p-3 flex items-center justify-between gap-2">
+              <div className="min-w-0">
+                <p className="text-[11px] uppercase tracking-wider text-muted-foreground">Diária</p>
+                <p className="text-sm font-semibold tabular-nums mt-0.5">{fmt(dailyValue)}</p>
+              </div>
+              {onOpenSettings && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    onOpenChange(false);
+                    setTimeout(() => onOpenSettings(), 150);
+                  }}
+                  className="text-xs font-medium text-primary hover:underline shrink-0"
+                >
+                  Alterar
+                </button>
+              )}
+            </div>
+
             <div>
               <Label className="text-xs text-muted-foreground">KM Final</Label>
               <Input
                 type="number"
                 inputMode="numeric"
-                placeholder={`Maior que ${active.kmStart}`}
+                placeholder={`Maior que ${kmStart}`}
                 value={kmEnd}
                 onChange={(e) => setKmEnd(e.target.value)}
-                className="mt-1 text-lg"
+                className={`mt-1 text-lg ${kmInvalid ? "border-destructive focus-visible:ring-destructive" : ""}`}
+                aria-invalid={kmInvalid || undefined}
+                aria-describedby={kmInvalid ? "kmend-error" : undefined}
                 autoFocus
               />
-              {kmDriven > 0 && (
-                <p className="text-xs text-muted-foreground mt-1 animate-time-flash" key={kmDriven}>
-                  {kmDriven} km percorridos
+              {kmInvalid ? (
+                <p id="kmend-error" className="flex items-center gap-1 text-xs text-destructive mt-1.5 animate-fade-in">
+                  <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                  KM deve ser maior que {kmStart}
                 </p>
+              ) : (
+                kmDriven > 0 && (
+                  <p className="text-xs text-muted-foreground mt-1 animate-time-flash" key={kmDriven}>
+                    {kmDriven} km percorridos
+                  </p>
+                )
               )}
             </div>
 
@@ -219,17 +253,6 @@ export function FinishRouteSheet({ open, onOpenChange, onFinished }: Props) {
                 </Popover>
               </div>
             )}
-
-            <div>
-              <Label className="text-xs text-muted-foreground">Diária (R$)</Label>
-              <Input
-                type="number"
-                step="0.01"
-                value={dailyValue}
-                onChange={(e) => setDailyValue(e.target.value)}
-                className="mt-1"
-              />
-            </div>
 
             <Button
               onClick={handleSave}

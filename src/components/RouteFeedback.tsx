@@ -7,6 +7,7 @@ import {
   daysInMonth,
   fortnightRange,
 } from "@/lib/goals";
+import { useCountUp } from "@/hooks/useCountUp";
 
 interface Props {
   route: RouteEntry;
@@ -101,12 +102,8 @@ export function RouteFeedback({ route, allRoutes, onClose }: Props) {
           </button>
         </div>
 
-        {/* Lucro destaque */}
-        <div className="text-center py-2">
-          <p className="text-[11px] uppercase tracking-wider text-muted-foreground mb-1">Lucro da rota</p>
-          <p className={`text-[22px] font-bold tabular-nums ${profit >= 0 ? "text-success" : "text-destructive"}`}>
-            {fmt(profit)}
-          </p>
+        {/* Lucro destaque — counter animado 0 → profit em 800ms */}
+        <ProfitHighlight profit={profit} />
           <div className="flex items-center justify-center gap-3 text-xs text-muted-foreground mt-1">
             <span className="flex items-center gap-1"><Clock className="h-3 w-3" />{hours.toFixed(1)}h</span>
             <span>·</span>
