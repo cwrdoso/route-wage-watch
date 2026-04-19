@@ -139,7 +139,9 @@ export function GuidedTour({ open, steps, onTabChange, onFinish, onSkip }: Props
       }
     };
 
-    // Wait until input is mounted, then attach listener
+    // Wait until input is mounted, then attach listener + auto-focus so the
+    // user can immediately type without needing an extra tap (some mobile
+    // browsers intercept the first tap when overlay panels are present).
     const attach = () => {
       const el = find();
       if (!el) {
@@ -149,6 +151,13 @@ export function GuidedTour({ open, steps, onTabChange, onFinish, onSkip }: Props
       check();
       el.addEventListener("input", check);
       el.addEventListener("change", check);
+      window.setTimeout(() => {
+        try {
+          el.focus({ preventScroll: true });
+        } catch {
+          el.focus();
+        }
+      }, 400);
     };
     attach();
 
