@@ -109,6 +109,7 @@ export function FinishRouteSheet({ open, onOpenChange, onFinished, onOpenSetting
         const dateStr = format(endNow, "yyyy-MM-dd");
         const timeStart = `${pad(startDate.getHours())}:${pad(startDate.getMinutes())}`;
         const timeEnd = `${pad(endNow.getHours())}:${pad(endNow.getMinutes())}`;
+        const hoursWorkedReal = (endNow.getTime() - startDate.getTime()) / 3_600_000;
         const entry = calculateEntry(
           dateStr,
           active.kmStart,
@@ -118,6 +119,8 @@ export function FinishRouteSheet({ open, onOpenChange, onFinished, onOpenSetting
           timeStart,
           timeEnd,
           active.helperCost,
+          undefined,
+          hoursWorkedReal,
         );
         saveRoute(entry);
         setActiveRoute(null);
