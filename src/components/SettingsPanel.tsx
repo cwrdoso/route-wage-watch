@@ -325,6 +325,16 @@ export function SettingsPanel({ initialOpen, onRestartTour }: Props = {}) {
           </Section>
 
           <Section
+            id="custosfixos"
+            open={openSection === "custosfixos"}
+            onToggle={toggleSection}
+            icon={Receipt}
+            label="Custos Fixos"
+          >
+            <FixedCostsSection />
+          </Section>
+
+          <Section
             id="metas"
             open={openSection === "metas"}
             onToggle={toggleSection}
