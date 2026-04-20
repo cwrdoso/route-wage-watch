@@ -271,6 +271,7 @@ export function initCloudSync() {
         localStorage.removeItem(SETTINGS_KEY);
         localStorage.removeItem(EXPENSES_KEY);
         localStorage.removeItem(ACTIVE_ROUTE_KEY);
+        localStorage.removeItem("driver_fixed_costs");
         emit();
       }
     }
