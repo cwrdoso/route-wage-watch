@@ -143,8 +143,13 @@ export function calculateEntry(
 
   const [sh, sm] = timeStart.split(":").map(Number);
   const [eh, em] = timeEnd.split(":").map(Number);
-  let hoursWorked = (eh + em / 60) - (sh + sm / 60);
-  if (hoursWorked < 0) hoursWorked += 24;
+  let hoursWorked: number;
+  if (typeof hoursWorkedOverride === "number" && hoursWorkedOverride > 0) {
+    hoursWorked = hoursWorkedOverride;
+  } else {
+    hoursWorked = (eh + em / 60) - (sh + sm / 60);
+    if (hoursWorked < 0) hoursWorked += 24;
+  }
   const earningsPerHour = hoursWorked > 0 ? netProfit / hoursWorked : 0;
 
   return {
