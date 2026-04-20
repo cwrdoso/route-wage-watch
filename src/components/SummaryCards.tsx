@@ -7,7 +7,6 @@ import { MoneyValue } from "@/components/MoneyValue";
 
 interface SummaryCardsProps {
   routes: RouteEntry[];
-  periodLabel?: string;
 }
 
 interface CardData {
@@ -58,7 +57,7 @@ function AnimatedCard({ card, index }: { card: CardData; index: number }) {
   );
 }
 
-export function SummaryCards({ routes: allRoutes, periodLabel }: SummaryCardsProps) {
+export function SummaryCards({ routes: allRoutes }: SummaryCardsProps) {
   const routes = onlyRoutes(allRoutes);
   const totalRevenue = routes.reduce((sum, r) => sum + r.dailyValue, 0);
   const totalProfit = routes.reduce((sum, r) => sum + r.netProfit, 0);
@@ -69,8 +68,8 @@ export function SummaryCards({ routes: allRoutes, periodLabel }: SummaryCardsPro
   const profitPerHour = hasHours ? totalProfit / totalHours : null;
 
   const cards: CardData[] = [
-    { title: "Faturamento", value: totalRevenue, icon: DollarSign, accent: "text-foreground", format: "currency" },
-    { title: "Lucro", value: totalProfit, icon: TrendingUp, accent: totalProfit >= 0 ? "text-success" : "text-destructive", format: "currency" },
+    { title: "Faturamento Total", value: totalRevenue, icon: DollarSign, accent: "text-foreground", format: "currency" },
+    { title: "Lucro Total", value: totalProfit, icon: TrendingUp, accent: totalProfit >= 0 ? "text-success" : "text-destructive", format: "currency" },
     { title: "Dias Trabalhados", value: uniqueDays, icon: Calendar, accent: "text-foreground", format: "number" },
     { title: "Horas Trabalhadas", value: totalHours, icon: Clock, accent: "text-foreground", format: "hours" },
     { title: "Faturamento/Hora", value: revenuePerHour, icon: DollarSign, accent: "text-foreground/80", format: "currency" },
@@ -78,17 +77,10 @@ export function SummaryCards({ routes: allRoutes, periodLabel }: SummaryCardsPro
   ];
 
   return (
-    <div data-tour="summary-cards" className="space-y-2">
-      {periodLabel && (
-        <p className="text-[11px] uppercase tracking-wider text-muted-foreground/80 px-1">
-          {periodLabel}
-        </p>
-      )}
-      <div className="grid grid-cols-2 gap-3">
-        {cards.map((c, i) => (
-          <AnimatedCard key={c.title} card={c} index={i} />
-        ))}
-      </div>
+    <div data-tour="summary-cards" className="grid grid-cols-2 gap-3">
+      {cards.map((c, i) => (
+        <AnimatedCard key={c.title} card={c} index={i} />
+      ))}
     </div>
   );
 }
