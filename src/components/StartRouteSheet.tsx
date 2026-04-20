@@ -28,7 +28,7 @@ export function StartRouteSheet({ open, onOpenChange, onStarted }: Props) {
     }
   }, [open]);
 
-  const valid = kmStart && Number(kmStart) > 0;
+  const valid = kmStart.trim() !== "" && !Number.isNaN(Number(kmStart)) && Number(kmStart) >= 0;
 
   const handleStart = () => {
     if (!valid) return;
