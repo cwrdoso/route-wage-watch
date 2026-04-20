@@ -302,6 +302,7 @@ export function RouteHistory({ routes, onDelete }: RouteHistoryProps) {
                   variant="ghost"
                   size="icon"
                   className="h-7 w-7 text-muted-foreground hover:text-destructive"
+                  onPointerDown={(e) => e.stopPropagation()}
                   onClick={(e) => handleDelete(e, r.id)}
                   aria-label="Excluir rota"
                 >
