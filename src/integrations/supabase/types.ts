@@ -74,6 +74,48 @@ export type Database = {
         }
         Relationships: []
       }
+      fixed_costs: {
+        Row: {
+          accumulated: number
+          active: boolean
+          created_at: string
+          cycle_start: string
+          id: string
+          name: string
+          per_route_amount: number
+          period: string
+          total_amount: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          accumulated?: number
+          active?: boolean
+          created_at?: string
+          cycle_start?: string
+          id?: string
+          name: string
+          per_route_amount?: number
+          period?: string
+          total_amount?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          accumulated?: number
+          active?: boolean
+          created_at?: string
+          cycle_start?: string
+          id?: string
+          name?: string
+          per_route_amount?: number
+          period?: string
+          total_amount?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
