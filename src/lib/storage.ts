@@ -126,6 +126,7 @@ export function calculateEntry(
   helperCostOverride?: number,
   platform?: string,
   hoursWorkedOverride?: number,
+  fixedFeeOverride?: number,
 ): RouteEntry {
   const settings = getSettings();
   const kmDriven = kmEnd - kmStart;
@@ -136,7 +137,7 @@ export function calculateEntry(
   const reservePerKm = settings.reservePerKm;
   const recommendedReserve = reservePerKm * kmDriven;
   const isExempt = dailyValue < 350;
-  const actualFixedFee = isExempt ? 0 : fixedFee;
+  const actualFixedFee = fixedFeeOverride ?? (isExempt ? 0 : fixedFee);
   const actualHelperCost = helperCostOverride ?? settings.helperCost;
   const netProfit = dailyValue - fuelCost - actualHelperCost - actualFixedFee;
 
