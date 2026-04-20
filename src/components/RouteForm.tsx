@@ -14,6 +14,7 @@ interface RouteFormProps {
 
 export function RouteForm({ onSave }: RouteFormProps) {
   const settings = getSettings();
+  const defaultFixedFee = settings.fixedFee ?? 50;
   const [date, setDate] = useState(format(new Date(), "yyyy-MM-dd"));
   const [kmStart, setKmStart] = useState("");
   const [kmEnd, setKmEnd] = useState("");
@@ -21,12 +22,16 @@ export function RouteForm({ onSave }: RouteFormProps) {
   const [pricePerLiter, setPricePerLiter] = useState("");
   const [timeStart, setTimeStart] = useState("07:00");
   const [timeEnd, setTimeEnd] = useState("17:00");
+  const [helperCostStr, setHelperCostStr] = useState(String(settings.helperCost ?? 0));
+  const [fixedFeeStr, setFixedFeeStr] = useState(String(defaultFixedFee));
   const btnRef = useRef<HTMLButtonElement>(null);
 
   const kmDriven = Number(kmEnd) - Number(kmStart);
   const litersUsed = kmDriven > 0 ? kmDriven / settings.avgConsumption : 0;
   const fuelCost = litersUsed * Number(pricePerLiter);
   const reserve = kmDriven > 0 ? kmDriven * settings.reservePerKm : 0;
+  const helperApplied = Number(helperCostStr) || 0;
+  const fixedFeeApplied = Number(fixedFeeStr) || 0;
 
   const [sh, sm] = timeStart.split(":").map(Number);
   const [eh, em] = timeEnd.split(":").map(Number);
@@ -57,7 +62,11 @@ export function RouteForm({ onSave }: RouteFormProps) {
       Number(dailyValue),
       Number(pricePerLiter),
       timeStart,
-      timeEnd
+      timeEnd,
+      helperApplied,
+      undefined,
+      undefined,
+      fixedFeeApplied,
     );
     saveRoute(entry);
     onSave(entry);
@@ -68,6 +77,8 @@ export function RouteForm({ onSave }: RouteFormProps) {
     setPricePerLiter("");
     setTimeStart("07:00");
     setTimeEnd("17:00");
+    setHelperCostStr(String(settings.helperCost ?? 0));
+    setFixedFeeStr(String(defaultFixedFee));
   };
 
   const isValid = date && kmStart && kmEnd && dailyValue && pricePerLiter && kmDriven > 0 && timeStart && timeEnd;
