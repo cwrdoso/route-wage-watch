@@ -28,6 +28,7 @@ import { ExportSheet } from "@/components/ExportSheet";
 import { Home, Route, DollarSign, Settings, LogOut, Play, Square, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
+import { onCloudChange } from "@/lib/cloudSync";
 import { useNavigate } from "react-router-dom";
 import { vibrate } from "@/lib/haptics";
 import logoRotta from "@/assets/logo-rotta.png";
@@ -187,12 +188,20 @@ const Index = () => {
     };
     fetchProfile();
 
+    // Refresh local state whenever cloud sync pulls fresh data
+    const unsub = onCloudChange(() => {
+      setRoutes(getRoutes());
+      setExtraExpenses(getExtraExpenses());
+      setRouteMode(getSettings().routeMode ?? "dynamic");
+      setActiveRefreshKey((k) => k + 1);
+    });
+
     // Trigger guided tour on first ever load
     if (!localStorage.getItem(TOUR_FLAG_KEY)) {
-      // Small delay so the home renders cleanly first
       const t = window.setTimeout(() => setTourOpen(true), 600);
-      return () => window.clearTimeout(t);
+      return () => { window.clearTimeout(t); unsub(); };
     }
+    return () => { unsub(); };
   }, []);
 
   const refresh = () => {

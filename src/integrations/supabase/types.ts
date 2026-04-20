@@ -14,6 +14,66 @@ export type Database = {
   }
   public: {
     Tables: {
+      active_routes: {
+        Row: {
+          created_at: string
+          helper_cost: number
+          id: string
+          km_start: number
+          started_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          helper_cost?: number
+          id?: string
+          km_start: number
+          started_at: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          helper_cost?: number
+          id?: string
+          km_start?: number
+          started_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      extra_expenses: {
+        Row: {
+          amount: number
+          category: string
+          created_at: string
+          date: string
+          description: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount?: number
+          category?: string
+          created_at?: string
+          date: string
+          description: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          category?: string
+          created_at?: string
+          date?: string
+          description?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -36,6 +96,141 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      routes: {
+        Row: {
+          auto_generated: boolean | null
+          avg_consumption: number
+          created_at: string
+          daily_value: number
+          date: string
+          earnings_per_hour: number
+          fixed_fee: number
+          fuel_cost: number
+          helper_cost: number
+          hours_worked: number
+          id: string
+          km_driven: number
+          km_end: number
+          km_start: number
+          liters_used: number
+          net_profit: number
+          platform: string | null
+          price_per_liter: number
+          recommended_reserve: number
+          reserve_per_km: number
+          time_end: string | null
+          time_start: string | null
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          auto_generated?: boolean | null
+          avg_consumption?: number
+          created_at?: string
+          daily_value?: number
+          date: string
+          earnings_per_hour?: number
+          fixed_fee?: number
+          fuel_cost?: number
+          helper_cost?: number
+          hours_worked?: number
+          id?: string
+          km_driven?: number
+          km_end?: number
+          km_start?: number
+          liters_used?: number
+          net_profit?: number
+          platform?: string | null
+          price_per_liter?: number
+          recommended_reserve?: number
+          reserve_per_km?: number
+          time_end?: string | null
+          time_start?: string | null
+          type?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          auto_generated?: boolean | null
+          avg_consumption?: number
+          created_at?: string
+          daily_value?: number
+          date?: string
+          earnings_per_hour?: number
+          fixed_fee?: number
+          fuel_cost?: number
+          helper_cost?: number
+          hours_worked?: number
+          id?: string
+          km_driven?: number
+          km_end?: number
+          km_start?: number
+          liters_used?: number
+          net_profit?: number
+          platform?: string | null
+          price_per_liter?: number
+          recommended_reserve?: number
+          reserve_per_km?: number
+          time_end?: string | null
+          time_start?: string | null
+          type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      settings: {
+        Row: {
+          avg_consumption: number
+          created_at: string
+          default_daily_value: number
+          default_price_per_liter: number
+          fixed_fee: number
+          fortnight_goal: number
+          helper_cost: number
+          hourly_goal: number
+          id: string
+          monthly_goal: number
+          reserve_per_km: number
+          route_mode: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avg_consumption?: number
+          created_at?: string
+          default_daily_value?: number
+          default_price_per_liter?: number
+          fixed_fee?: number
+          fortnight_goal?: number
+          helper_cost?: number
+          hourly_goal?: number
+          id?: string
+          monthly_goal?: number
+          reserve_per_km?: number
+          route_mode?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avg_consumption?: number
+          created_at?: string
+          default_daily_value?: number
+          default_price_per_liter?: number
+          fixed_fee?: number
+          fortnight_goal?: number
+          helper_cost?: number
+          hourly_goal?: number
+          id?: string
+          monthly_goal?: number
+          reserve_per_km?: number
+          route_mode?: string
           updated_at?: string
           user_id?: string
         }

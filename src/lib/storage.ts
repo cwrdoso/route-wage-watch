@@ -50,6 +50,8 @@ const SETTINGS_KEY = "driver_settings";
 const ACTIVE_ROUTE_KEY = "driver_active_route";
 const LAST_OPEN_KEY = "driver_last_open";
 
+import { pushRoute, pushDeleteRoute, pushSettings, pushActiveRoute, pushBulkRoutes } from "./cloudSync";
+
 export function getRoutes(): RouteEntry[] {
   const data = localStorage.getItem(ROUTES_KEY);
   return data ? JSON.parse(data) : [];
@@ -59,11 +61,13 @@ export function saveRoute(entry: RouteEntry) {
   const routes = getRoutes();
   routes.unshift(entry);
   localStorage.setItem(ROUTES_KEY, JSON.stringify(routes));
+  pushRoute(entry);
 }
 
 export function deleteRoute(id: string) {
   const routes = getRoutes().filter((r) => r.id !== id);
   localStorage.setItem(ROUTES_KEY, JSON.stringify(routes));
+  pushDeleteRoute(id);
 }
 
 export function getSettings(): Settings {
@@ -98,6 +102,7 @@ export function getSettings(): Settings {
 
 export function saveSettings(settings: Settings) {
   localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+  pushSettings(settings);
 }
 
 /** Active route helpers */
@@ -108,6 +113,7 @@ export function getActiveRoute(): ActiveRoute | null {
 export function setActiveRoute(r: ActiveRoute | null) {
   if (r) localStorage.setItem(ACTIVE_ROUTE_KEY, JSON.stringify(r));
   else localStorage.removeItem(ACTIVE_ROUTE_KEY);
+  pushActiveRoute(r);
 }
 
 /** Filter routes only (no dayoff entries) for calculations */
@@ -228,6 +234,7 @@ export function ensureAutoDayOffs() {
   if (toAdd.length) {
     const merged = [...toAdd, ...routes].sort((a, b) => (a.date < b.date ? 1 : -1));
     localStorage.setItem(ROUTES_KEY, JSON.stringify(merged));
+    pushBulkRoutes(toAdd);
   }
   localStorage.setItem(LAST_OPEN_KEY, todayStr);
 }
