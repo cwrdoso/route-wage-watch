@@ -173,6 +173,7 @@ const Index = () => {
   const [settingsInitialOpen, setSettingsInitialOpen] = useState<"essencial" | undefined>(undefined);
   const [settingsKey, setSettingsKey] = useState(0);
   const [exportSheetOpen, setExportSheetOpen] = useState(false);
+  const [homePeriod, setHomePeriod] = useState<HomePeriod>({ kind: "month" });
 
   const [tourOpen, setTourOpen] = useState(false);
 
@@ -296,9 +297,13 @@ const Index = () => {
           <>
             {hasAnyRoute ? (
               <>
-                <SummaryCards routes={routes} />
-                <GoalProgress routes={routes} />
-                <QuinzenaSummary routes={routes} />
+                <HomePeriodSelector period={homePeriod} onChange={setHomePeriod} />
+                <SummaryCards
+                  routes={filterRoutesByPeriod(routes, homePeriod)}
+                  periodLabel={periodLabel(homePeriod)}
+                />
+                {homePeriod.kind === "month" && <GoalProgress routes={routes} />}
+                {homePeriod.kind === "month" && <QuinzenaSummary routes={routes} />}
               </>
             ) : (
               <EmptyDashboard onStart={goToStartRoute} />
