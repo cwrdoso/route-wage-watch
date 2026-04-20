@@ -14,14 +14,16 @@ import {
   Lock,
   Info,
   HelpCircle,
+  Receipt,
 } from "lucide-react";
 import { getSettings, saveSettings } from "@/lib/storage";
 import { toast } from "sonner";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
+import { FixedCostsSection } from "./FixedCostsSection";
 
-type SectionKey = "essencial" | "veiculo" | "financeiro" | "metas";
+type SectionKey = "essencial" | "veiculo" | "financeiro" | "custosfixos" | "metas";
 
 interface Props {
   /** Optional: open this section on mount (used when navigating from elsewhere) */
