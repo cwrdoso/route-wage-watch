@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Plus, ShoppingCart } from "lucide-react";
 import { toast } from "sonner";
+import { pushExpense, pushDeleteExpense } from "@/lib/cloudSync";
 
 export interface AdditionalExpense {
   id: string;
@@ -25,11 +26,13 @@ function saveExtraExpense(expense: AdditionalExpense) {
   const list = getExtraExpenses();
   list.unshift(expense);
   localStorage.setItem(EXPENSES_KEY, JSON.stringify(list));
+  pushExpense(expense);
 }
 
 export function deleteExtraExpense(id: string) {
   const list = getExtraExpenses().filter((e) => e.id !== id);
   localStorage.setItem(EXPENSES_KEY, JSON.stringify(list));
+  pushDeleteExpense(id);
 }
 
 interface Props {
