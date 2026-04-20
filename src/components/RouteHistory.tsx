@@ -189,8 +189,10 @@ export function RouteHistory({ routes, onDelete }: RouteHistoryProps) {
     prevFirstId.current = currentFirst;
   }, [routes]);
 
-  const handleDelete = (e: React.MouseEvent, id: string) => {
+  const handleDelete = (e: React.MouseEvent | React.PointerEvent, id: string) => {
     e.stopPropagation();
+    e.preventDefault();
+    if (!window.confirm("Tem certeza que deseja excluir este registro?")) return;
     vibrate(50);
     deleteRoute(id);
     onDelete(id);
@@ -238,6 +240,7 @@ export function RouteHistory({ routes, onDelete }: RouteHistoryProps) {
                   variant="ghost"
                   size="icon"
                   className="h-7 w-7 text-muted-foreground hover:text-destructive"
+                  onPointerDown={(e) => e.stopPropagation()}
                   onClick={(e) => handleDelete(e, r.id)}
                   aria-label="Remover folga"
                 >
@@ -299,6 +302,7 @@ export function RouteHistory({ routes, onDelete }: RouteHistoryProps) {
                   variant="ghost"
                   size="icon"
                   className="h-7 w-7 text-muted-foreground hover:text-destructive"
+                  onPointerDown={(e) => e.stopPropagation()}
                   onClick={(e) => handleDelete(e, r.id)}
                   aria-label="Excluir rota"
                 >
