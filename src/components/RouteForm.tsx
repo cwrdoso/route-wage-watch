@@ -147,12 +147,31 @@ export function RouteForm({ onSave }: RouteFormProps) {
             <Label className="text-xs text-muted-foreground">Preço/Litro (R$)</Label>
             <Input type="number" step="0.01" placeholder="0,00" value={pricePerLiter} onChange={(e) => setPricePerLiter(e.target.value)} className="mt-1" />
           </div>
+          <div>
+            <Label className="text-xs text-muted-foreground">Ajudante (R$)</Label>
+            <Input
+              type="number"
+              step="0.01"
+              placeholder="0,00"
+              value={helperCostStr}
+              onChange={(e) => setHelperCostStr(e.target.value)}
+              className="mt-1"
+            />
+          </div>
+          <div>
+            <Label className="text-xs text-muted-foreground">Taxa Fixa (R$)</Label>
+            <Input
+              type="number"
+              step="0.01"
+              placeholder="0,00"
+              value={fixedFeeStr}
+              onChange={(e) => setFixedFeeStr(e.target.value)}
+              className="mt-1"
+            />
+          </div>
 
           {kmDriven > 0 && Number(pricePerLiter) > 0 && (() => {
             const dv = Number(dailyValue);
-            const fixedFeeCfg = settings.fixedFee ?? 50;
-            const fixedFeeApplied = dv < 350 ? 0 : fixedFeeCfg;
-            const helperApplied = settings.helperCost;
             const totalCosts = fuelCost + helperApplied + fixedFeeApplied;
             const profit = dv - totalCosts;
             return (
