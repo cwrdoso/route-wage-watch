@@ -11,6 +11,9 @@ import { onlyRoutes } from "@/lib/storage";
 import type { DateRange } from "react-day-picker";
 import { MoneyValue } from "@/components/MoneyValue";
 import { vibrate } from "@/lib/haptics";
+import { Progress } from "@/components/ui/progress";
+import { getSettings } from "@/lib/storage";
+import { Target } from "lucide-react";
 
 interface Props {
   routes: RouteEntry[];
