@@ -275,8 +275,8 @@ export function initCloudSync() {
 
 /* ---------- Push helpers (fire-and-forget) ---------- */
 
-function bg<T>(p: Promise<T>) {
-  p.catch((err) => console.error("[cloudSync] push failed", err));
+function bg<T>(p: PromiseLike<T> | Promise<T>) {
+  Promise.resolve(p).catch((err) => console.error("[cloudSync] push failed", err));
 }
 
 export function pushRoute(entry: RouteEntry) {
