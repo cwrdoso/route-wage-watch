@@ -137,54 +137,53 @@ export function RouteForm({ onSave }: RouteFormProps) {
             <Input type="number" step="0.01" placeholder="0,00" value={pricePerLiter} onChange={(e) => setPricePerLiter(e.target.value)} className="mt-1" />
           </div>
 
-          {kmDriven > 0 && Number(pricePerLiter) > 0 && (
-            <div className="col-span-2 rounded-lg bg-secondary/50 p-3 space-y-1.5 text-sm animate-fade-in">
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Resumo de Gastos da Rota</p>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">KM Rodados</span>
-                <span className="font-medium tabular-nums">{kmDriven} km</span>
+          {kmDriven > 0 && Number(pricePerLiter) > 0 && (() => {
+            const dv = Number(dailyValue);
+            const fixedFeeCfg = settings.fixedFee ?? 50;
+            const fixedFeeApplied = dv < 350 ? 0 : fixedFeeCfg;
+            const helperApplied = settings.helperCost;
+            const totalCosts = fuelCost + helperApplied + fixedFeeApplied;
+            const profit = dv - totalCosts;
+            return (
+              <div className="col-span-2 rounded-lg bg-secondary/50 p-3 space-y-1.5 text-sm animate-fade-in">
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Resumo de Gastos da Rota</p>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">KM Rodados</span>
+                  <span className="font-medium tabular-nums">{kmDriven} km</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Horas Trabalhadas</span>
+                  <span className="font-medium tabular-nums">{hoursPreview.toFixed(1)}h</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Combustível ({settings.avgConsumption} km/l • {litersUsed.toFixed(2)} L)</span>
+                  <span className="font-medium text-warning tabular-nums">R$ {fuelCost.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Ajudante</span>
+                  <span className="font-medium text-info tabular-nums">R$ {helperApplied.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Taxa Fixa</span>
+                  <span className="font-medium text-muted-foreground tabular-nums">R$ {fixedFeeApplied.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between border-t border-border/50 pt-1.5">
+                  <span className="text-muted-foreground">Reserva (R$ {settings.reservePerKm.toFixed(2)}/km)</span>
+                  <span className="font-medium text-primary tabular-nums">R$ {reserve.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between border-t border-border/50 pt-1.5 font-bold">
+                  <span>Gastos Totais</span>
+                  <span className="text-destructive tabular-nums">R$ {totalCosts.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between font-bold">
+                  <span>Lucro Estimado</span>
+                  <span className={`tabular-nums transition-colors ${profit >= 0 ? "text-success" : "text-destructive"}`}>
+                    R$ {profit.toFixed(2)}
+                  </span>
+                </div>
               </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Horas Trabalhadas</span>
-                <span className="font-medium tabular-nums">{hoursPreview.toFixed(1)}h</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Combustível ({settings.avgConsumption} km/l • {litersUsed.toFixed(2)} L)</span>
-                <span className="font-medium text-warning tabular-nums">R$ {fuelCost.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Ajudante</span>
-                <span className={`font-medium ${Number(dailyValue) < 350 ? 'text-muted-foreground line-through' : 'text-info'}`}>
-                  R$ {Number(dailyValue) < 350 ? '0,00 (isento)' : settings.helperCost.toFixed(2)}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Taxa Fixa</span>
-                <span className={`font-medium ${Number(dailyValue) < 350 ? 'text-muted-foreground line-through' : 'text-muted-foreground'}`}>
-                  R$ {Number(dailyValue) < 350 ? '0,00 (isento)' : '50,00'}
-                </span>
-              </div>
-              <div className="flex justify-between border-t border-border/50 pt-1.5">
-                <span className="text-muted-foreground">Reserva (R$ {settings.reservePerKm.toFixed(2)}/km)</span>
-                <span className="font-medium text-primary tabular-nums">R$ {reserve.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between border-t border-border/50 pt-1.5 font-bold">
-                <span>Gastos Totais</span>
-                <span className="text-destructive tabular-nums">
-                  R$ {(fuelCost + (Number(dailyValue) < 350 ? 0 : settings.helperCost) + (Number(dailyValue) < 350 ? 0 : 50)).toFixed(2)}
-                </span>
-              </div>
-              <div className="flex justify-between font-bold">
-                <span>Lucro Estimado</span>
-                <span className={`tabular-nums transition-colors ${(Number(dailyValue) - fuelCost - (Number(dailyValue) < 350 ? 0 : settings.helperCost) - (Number(dailyValue) < 350 ? 0 : 50)) >= 0 ? "text-success" : "text-destructive"}`}>
-                  R$ {(Number(dailyValue) - fuelCost - (Number(dailyValue) < 350 ? 0 : settings.helperCost) - (Number(dailyValue) < 350 ? 0 : 50)).toFixed(2)}
-                </span>
-              </div>
-              {Number(dailyValue) < 350 && (
-                <p className="text-xs text-info mt-2 italic">* Diária abaixo de R$ 350: isento de taxa fixa e ajudante</p>
-              )}
-            </div>
-          )}
+            );
+          })()}
 
           <Button
             ref={btnRef}
