@@ -137,8 +137,7 @@ export function calculateEntry(
   const recommendedReserve = reservePerKm * kmDriven;
   const isExempt = dailyValue < 350;
   const actualFixedFee = isExempt ? 0 : fixedFee;
-  const baseHelper = helperCostOverride ?? settings.helperCost;
-  const actualHelperCost = isExempt ? 0 : baseHelper;
+  const actualHelperCost = helperCostOverride ?? settings.helperCost;
   const netProfit = dailyValue - fuelCost - actualHelperCost - actualFixedFee;
 
   const [sh, sm] = timeStart.split(":").map(Number);
