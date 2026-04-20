@@ -19,7 +19,9 @@ export function RouteForm({ onSave }: RouteFormProps) {
   const [kmStart, setKmStart] = useState("");
   const [kmEnd, setKmEnd] = useState("");
   const [dailyValue, setDailyValue] = useState(String(settings.defaultDailyValue));
-  const [pricePerLiter, setPricePerLiter] = useState("");
+  const [pricePerLiter, setPricePerLiter] = useState(
+    settings.defaultPricePerLiter ? String(settings.defaultPricePerLiter) : "",
+  );
   const [timeStart, setTimeStart] = useState("07:00");
   const [timeEnd, setTimeEnd] = useState("17:00");
   const [helperCostStr, setHelperCostStr] = useState(String(settings.helperCost ?? 0));
@@ -74,7 +76,7 @@ export function RouteForm({ onSave }: RouteFormProps) {
     setKmStart("");
     setKmEnd("");
     setDailyValue(String(settings.defaultDailyValue));
-    setPricePerLiter("");
+    setPricePerLiter(settings.defaultPricePerLiter ? String(settings.defaultPricePerLiter) : "");
     setTimeStart("07:00");
     setTimeEnd("17:00");
     setHelperCostStr(String(settings.helperCost ?? 0));
