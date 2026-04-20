@@ -192,7 +192,6 @@ export function RouteHistory({ routes, onDelete }: RouteHistoryProps) {
   const handleDelete = (e: React.MouseEvent | React.PointerEvent, id: string) => {
     e.stopPropagation();
     e.preventDefault();
-    if (!window.confirm("Tem certeza que deseja excluir este registro?")) return;
     vibrate(50);
     deleteRoute(id);
     onDelete(id);
