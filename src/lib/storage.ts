@@ -125,6 +125,7 @@ export function calculateEntry(
   timeEnd: string,
   helperCostOverride?: number,
   platform?: string,
+  hoursWorkedOverride?: number,
 ): RouteEntry {
   const settings = getSettings();
   const kmDriven = kmEnd - kmStart;
