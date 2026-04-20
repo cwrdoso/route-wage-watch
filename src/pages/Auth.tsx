@@ -65,7 +65,7 @@ const Auth = () => {
           },
         });
         if (error) throw error;
-        toast.success("Conta criada! Verifique seu email.");
+        toast.success("Conta criada com sucesso!");
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
