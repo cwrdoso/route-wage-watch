@@ -245,6 +245,36 @@ export function QuinzenaSummary({ routes: allRoutes }: Props) {
         </div>
 
         <DataGrid data={data} />
+
+        {!usingCustom && (() => {
+          const settings = getSettings();
+          const monthlyGoal = settings.monthlyGoal && settings.monthlyGoal > 0 ? settings.monthlyGoal : 0;
+          const fortGoal =
+            settings.fortnightGoal && settings.fortnightGoal > 0
+              ? settings.fortnightGoal
+              : monthlyGoal / 2;
+          if (fortGoal <= 0) return null;
+          const pct = Math.min((data.profit / fortGoal) * 100, 100);
+          const reached = data.profit >= fortGoal;
+          return (
+            <div className="rounded-lg bg-secondary/40 p-3 space-y-2 mt-1">
+              <div className="flex items-center justify-between text-xs">
+                <span className="flex items-center gap-1.5 text-muted-foreground">
+                  <Target className="h-3.5 w-3.5 text-primary" />
+                  Meta da Quinzena
+                </span>
+                <span className={`tabular-nums font-semibold ${reached ? "text-success" : "text-foreground"}`}>
+                  {Math.max(0, Math.round(pct))}%
+                </span>
+              </div>
+              <Progress value={Math.max(0, pct)} className="h-2" />
+              <div className="flex items-center justify-between text-[11px] text-muted-foreground tabular-nums">
+                <MoneyValue value={Math.max(0, data.profit)} />
+                <MoneyValue value={fortGoal} />
+              </div>
+            </div>
+          );
+        })()}
       </CardContent>
     </Card>
   );
