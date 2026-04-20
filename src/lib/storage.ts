@@ -51,6 +51,7 @@ const ACTIVE_ROUTE_KEY = "driver_active_route";
 const LAST_OPEN_KEY = "driver_last_open";
 
 import { pushRoute, pushDeleteRoute, pushSettings, pushActiveRoute, pushBulkRoutes } from "./cloudSync";
+import { applyFixedCostsDeduction } from "./fixedCosts";
 
 export function getRoutes(): RouteEntry[] {
   const data = localStorage.getItem(ROUTES_KEY);
@@ -58,6 +59,16 @@ export function getRoutes(): RouteEntry[] {
 }
 
 export function saveRoute(entry: RouteEntry) {
+  // Apply active fixed-cost deductions to this route's net profit
+  if ((entry.type ?? "route") === "route") {
+    const deducted = applyFixedCostsDeduction();
+    if (deducted > 0) {
+      entry.netProfit = entry.netProfit - deducted;
+      if (entry.hoursWorked > 0) {
+        entry.earningsPerHour = entry.netProfit / entry.hoursWorked;
+      }
+    }
+  }
   const routes = getRoutes();
   routes.unshift(entry);
   localStorage.setItem(ROUTES_KEY, JSON.stringify(routes));

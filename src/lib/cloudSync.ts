@@ -151,11 +151,12 @@ async function pullAll(userId: string) {
   if (pulling) return;
   pulling = true;
   try {
-    const [routesRes, settingsRes, expensesRes, activeRes] = await Promise.all([
+    const [routesRes, settingsRes, expensesRes, activeRes, fixedCostsRes] = await Promise.all([
       supabase.from("routes").select("*").eq("user_id", userId).order("date", { ascending: false }),
       supabase.from("settings").select("*").eq("user_id", userId).maybeSingle(),
       supabase.from("extra_expenses").select("*").eq("user_id", userId).order("date", { ascending: false }),
       supabase.from("active_routes").select("*").eq("user_id", userId).maybeSingle(),
+      supabase.from("fixed_costs").select("*").eq("user_id", userId).order("created_at", { ascending: true }),
     ]);
 
     if (routesRes.data) {
@@ -167,6 +168,19 @@ async function pullAll(userId: string) {
     }
     if (expensesRes.data) {
       localStorage.setItem(EXPENSES_KEY, JSON.stringify(expensesRes.data.map(rowToExpense)));
+    }
+    if (fixedCostsRes.data) {
+      const mapped = fixedCostsRes.data.map((r: any) => ({
+        id: r.id,
+        name: r.name,
+        totalAmount: Number(r.total_amount) || 0,
+        period: r.period ?? "monthly",
+        perRouteAmount: Number(r.per_route_amount) || 0,
+        accumulated: Number(r.accumulated) || 0,
+        cycleStart: r.cycle_start,
+        active: !!r.active,
+      }));
+      localStorage.setItem("driver_fixed_costs", JSON.stringify(mapped));
     }
     if (activeRes.data) {
       localStorage.setItem(
@@ -257,6 +271,7 @@ export function initCloudSync() {
         localStorage.removeItem(SETTINGS_KEY);
         localStorage.removeItem(EXPENSES_KEY);
         localStorage.removeItem(ACTIVE_ROUTE_KEY);
+        localStorage.removeItem("driver_fixed_costs");
         emit();
       }
     }
