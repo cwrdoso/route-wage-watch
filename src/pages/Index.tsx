@@ -16,6 +16,7 @@ import { ExtraExpenseForm, getExtraExpenses, type AdditionalExpense } from "@/co
 import { QuinzenaSummary } from "@/components/QuinzenaSummary";
 import { ExtraExpenseList } from "@/components/ExtraExpenseList";
 import { GoalProgress } from "@/components/GoalProgress";
+import { HomePeriodSelector, filterRoutesByPeriod, periodLabel, type HomePeriod } from "@/components/HomePeriodSelector";
 import { RouteFeedback } from "@/components/RouteFeedback";
 import { RouteModeToggle, type RouteMode } from "@/components/RouteModeToggle";
 // FAB removido — botão inline dentro da aba Rotas
